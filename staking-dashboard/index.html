@@ -170,7 +170,7 @@ function shortAddr(addr) {
 async function fetchNetworkStats() {
   try {
     // Block height
-    const blockResp = await fetch(`${RPC}/block/latest`);
+    const blockResp = await fetch(`${RPC}/block`);
     const blockData = await blockResp.json();
     const height = parseInt(blockData.block.header.height);
     document.getElementById('blockHeight').textContent = height.toLocaleString();

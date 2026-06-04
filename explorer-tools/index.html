@@ -186,7 +186,7 @@ async function fetchAll() {
 async function fetchStats() {
   try {
     // Block height
-    const block = await (await fetch(`${RPC}/block/latest`)).json();
+    const block = await (await fetch(`${RPC}/block`)).json();
     const height = parseInt(block.block.header.height);
     document.getElementById('blockHeight').textContent = height.toLocaleString();
     document.getElementById('navHeight').textContent = '#' + height.toLocaleString();
@@ -209,7 +209,7 @@ async function fetchStats() {
 
 async function fetchBlocks() {
   try {
-    const latest = await (await fetch(`${RPC}/block/latest`)).json();
+    const latest = await (await fetch(`${RPC}/block`)).json();
     const height = parseInt(latest.block.header.height);
     const blocks = [];
 
@@ -255,7 +255,7 @@ async function fetchBlocks() {
 
 async function fetchProposals() {
   try {
-    const resp = await fetch(`${API}/cosmos/gov/v1beta1/proposals?pagination.limit=5`);
+    const resp = await fetch(`${API}/cosmos/gov/v1/proposals?pagination.limit=5`);
     const data = await resp.json();
     const proposals = data.proposals || [];
 
