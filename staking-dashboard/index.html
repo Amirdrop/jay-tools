@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><title>JAY Staking Dashboard</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>JAY Staking Dashboard</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;min-height:100vh}
@@ -14,7 +15,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 .container{max-width:1200px;margin:0 auto;padding:24px}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
-.card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px;transition:0.2s}
+.card:hover{border-color:rgba(0,212,255,0.2)}
 .card-label{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
 .card-value{font-size:28px;font-weight:800}
 .card-sub{font-size:12px;color:#555;margin-top:4px}
@@ -26,7 +28,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 .table{width:100%;border-collapse:collapse}
 .table th{text-align:left;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
 .table td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:14px}
-.table tr:hover{background:rgba(255,255,255,0.02)}
+.table tr{cursor:pointer;transition:0.2s}
+.table tr:hover{background:rgba(0,212,255,0.05)}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
 .badge-green{background:rgba(0,255,136,0.15);color:#00ff88}
 .val-bar{height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;margin-top:6px}
@@ -35,14 +38,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 .btn:hover{transform:translateY(-1px)}
 .btn-primary{background:linear-gradient(135deg,#00d4ff,#7b61ff);color:#fff}
 .btn-success{background:linear-gradient(135deg,#00ff88,#00cc66);color:#000}
-.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.15);color:#fff}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.15);color:#fff;cursor:pointer}
 .btn-outline:hover{border-color:#00d4ff}
 .btn-sm{padding:7px 14px;font-size:12px}
-.btn-group{display:flex;gap:8px}
 .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:100;justify-content:center;align-items:center}
 .modal-bg.show{display:flex}
-.modal{background:#12122a;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:420px;max-width:90%}
-.modal h3{font-size:20px;margin-bottom:20px}
+.modal{background:#12122a;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:500px;max-width:90%;max-height:80vh;overflow-y:auto;position:relative}
+.modal h3{font-size:20px;margin-bottom:20px;color:#00d4ff}
+.modal-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.modal-row .label{color:#888;font-size:13px}
+.modal-row .value{font-weight:600;font-size:14px;text-align:right;word-break:break-all;max-width:60%}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:#888;font-size:24px;cursor:pointer}
 .input-group{margin-bottom:16px}
 .input-group label{display:block;font-size:12px;color:#888;margin-bottom:6px}
 .input-group input,.input-group select{width:100%;padding:12px 14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#fff;font-size:14px;outline:none}
@@ -50,6 +56,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 .loading{color:#666;font-size:13px;text-align:center;padding:40px}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.1);border-top-color:#00d4ff;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
+.clickable{cursor:pointer;transition:0.2s}
+.clickable:hover{color:#00d4ff}
 @media(max-width:768px){.grid-4{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
@@ -67,20 +75,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
       <div class="card-value">—</div>
       <div class="card-sub">Not listed yet</div>
     </div>
-    <div class="card card-blue">
+    <div class="card card-blue clickable" onclick="showPoolDetail()">
       <div class="card-label">Total Staked</div>
       <div class="card-value" id="totalStaked"><span class="spinner"></span></div>
-      <div class="card-sub" id="stakedSub">Loading...</div>
+      <div class="card-sub" id="stakedSub">Click for details</div>
     </div>
-    <div class="card card-purple">
+    <div class="card card-purple clickable" onclick="scrollToValidators()">
       <div class="card-label">Validators</div>
       <div class="card-value" id="validatorCount"><span class="spinner"></span></div>
-      <div class="card-sub" id="validatorSub">Loading...</div>
+      <div class="card-sub" id="validatorSub">Click to view</div>
     </div>
-    <div class="card card-orange">
+    <div class="card card-orange clickable" onclick="showLatestBlock()">
       <div class="card-label">Block Height</div>
       <div class="card-value" id="blockHeight"><span class="spinner"></span></div>
-      <div class="card-sub">~5s block time</div>
+      <div class="card-sub">Click for details</div>
     </div>
   </div>
 
@@ -95,7 +103,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" id="validatorsSection">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <div class="section-title" style="margin-bottom:0">🏆 Active Validators</div>
       <button class="btn btn-primary btn-sm" onclick="openStakeModal()">+ Delegate</button>
@@ -104,8 +112,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
   </div>
 </div>
 
+<!-- Detail Modal -->
+<div class="modal-bg" id="detailModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h3 id="modalTitle">Details</h3>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- Stake Modal -->
 <div class="modal-bg" id="stakeModal">
   <div class="modal">
+    <button class="modal-close" onclick="closeStakeModal()">&times;</button>
     <h3>⚡ Delegate JAY</h3>
     <div class="input-group">
       <label>Validator</label>
@@ -114,12 +133,16 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
     <div class="input-group">
       <label>Amount (JAY)</label>
       <input type="number" id="stakeAmount" placeholder="0.00">
-      <div class="input-hint">Available: <span id="availBalance">0</span> JAY</div>
+      <div class="input-hint">Available: <span id="availBalance">0</span> JAY · <a href="#" style="color:#00d4ff" onclick="document.getElementById('stakeAmount').value=document.getElementById('availBalance').textContent;return false">Max</a></div>
     </div>
     <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:12px;margin-bottom:20px">
       <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
         <span style="color:#888">Unbonding Period</span>
         <span>21 days</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px">
+        <span style="color:#888">Est. APR</span>
+        <span style="color:#00ff88" id="estApr">~38%</span>
       </div>
     </div>
     <div style="display:flex;gap:12px">
@@ -139,11 +162,15 @@ const DECIMALS = 6;
 let walletAddress = null;
 let validators = [];
 let totalBonded = 0;
+let latestHeight = 0;
 
-function fmtJAY(u) {
-  return (parseFloat(u) / Math.pow(10, DECIMALS)).toLocaleString('en', { maximumFractionDigits: 2 });
-}
+function fmtJAY(u) { return (parseFloat(u) / Math.pow(10, DECIMALS)).toLocaleString('en', { maximumFractionDigits: 2 }); }
 function shortAddr(a) { return a.slice(0,10) + '...' + a.slice(-6); }
+function timeAgo(sec) {
+  if (sec < 60) return sec + 's ago';
+  if (sec < 3600) return Math.floor(sec/60) + 'm ago';
+  return Math.floor(sec/3600) + 'h ago';
+}
 
 async function api(path) {
   const resp = await fetch(PROXY + API + path, { signal: AbortSignal.timeout(15000) });
@@ -151,11 +178,93 @@ async function api(path) {
   return resp.json();
 }
 
+// ─── Modal ──────────────────────────────────
+function showModal(title, rows) {
+  document.getElementById('modalTitle').textContent = title;
+  let html = '';
+  rows.forEach(r => {
+    html += `<div class="modal-row"><span class="label">${r.label}</span><span class="value">${r.value}</span></div>`;
+  });
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('detailModal').classList.add('show');
+}
+function closeModal() { document.getElementById('detailModal').classList.remove('show'); }
+document.getElementById('detailModal').addEventListener('click', e => { if(e.target === e.currentTarget) closeModal(); });
+
+// ─── Pool Detail ────────────────────────────
+async function showPoolDetail() {
+  try {
+    const pool = await api('/cosmos/staking/v1beta1/pool');
+    const supply = await api('/cosmos/bank/v1beta1/supply');
+    const jay = supply.supply.find(s => s.denom === DENOM);
+    const bonded = parseInt(pool.pool.bonded_tokens);
+    const notBonded = parseInt(pool.pool.not_bonded_tokens);
+    const total = jay ? parseInt(jay.amount) : 0;
+    const bondedPct = total > 0 ? ((bonded/total)*100).toFixed(2) : '0';
+
+    showModal('Staking Pool Details', [
+      { label: 'Total Supply', value: fmtJAY(total) + ' JAY' },
+      { label: 'Bonded (Staked)', value: fmtJAY(bonded) + ' JAY' },
+      { label: 'Not Bonded', value: fmtJAY(notBonded) + ' JAY' },
+      { label: 'Bonded Ratio', value: bondedPct + '%' },
+      { label: 'Annual Inflation', value: '~10%' },
+      { label: 'Est. Base APR', value: '~40.9%' },
+      { label: 'Unbonding Period', value: '21 days' },
+    ]);
+  } catch(e) { showModal('Error', [{label: 'Message', value: e.message}]); }
+}
+
+// ─── Block Detail ───────────────────────────
+async function showLatestBlock() {
+  try {
+    const block = await api('/cosmos/base/tendermint/v1beta1/blocks/latest');
+    const header = block.block.header;
+    const txs = block.block.data.txs || [];
+    showModal('Latest Block', [
+      { label: 'Height', value: parseInt(header.height).toLocaleString() },
+      { label: 'Time', value: new Date(header.time).toLocaleString() },
+      { label: 'Proposer', value: shortAddr(header.proposer_address) },
+      { label: 'Chain ID', value: header.chain_id },
+      { label: 'Transactions', value: txs.length },
+    ]);
+  } catch(e) { showModal('Error', [{label: 'Message', value: e.message}]); }
+}
+
+// ─── Validator Detail ───────────────────────
+function showValidatorDetail(v) {
+  const tokens = parseInt(v.tokens);
+  const totalStake = validators.reduce((s,vv) => s + parseInt(vv.tokens), 0);
+  const pct = ((tokens/totalStake)*100).toFixed(2);
+  const comm = (parseFloat(v.commission.commission_rates.rate)*100).toFixed(1);
+  const apr = (40.9 * (1 - parseFloat(v.commission.commission_rates.rate))).toFixed(1);
+
+  const rows = [
+    { label: 'Moniker', value: v.description.moniker },
+    { label: 'Operator Address', value: v.operator_address },
+    { label: 'Status', value: v.status === 'BOND_STATUS_BONDED' ? '✅ Active' : v.status },
+    { label: 'Jailed', value: v.jailed ? '⚠️ Yes' : 'No' },
+    { label: 'Total Delegated', value: fmtJAY(tokens) + ' JAY' },
+    { label: 'Share of Stake', value: pct + '%' },
+    { label: 'Commission', value: comm + '%' },
+    { label: 'Max Commission', value: (parseFloat(v.commission.commission_rates.max_rate)*100).toFixed(0) + '%' },
+    { label: 'Est. APR', value: '~' + apr + '%' },
+  ];
+  if (v.description.website) rows.push({ label: 'Website', value: v.description.website });
+  if (v.description.details) rows.push({ label: 'Details', value: v.description.details });
+
+  showModal('Validator: ' + v.description.moniker, rows);
+}
+
+function scrollToValidators() {
+  document.getElementById('validatorsSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── Network Stats ──────────────────────────
 async function fetchNetworkStats() {
   try {
     const block = await api('/cosmos/base/tendermint/v1beta1/blocks/latest');
-    const height = parseInt(block.block.header.height);
-    document.getElementById('blockHeight').textContent = height.toLocaleString();
+    latestHeight = parseInt(block.block.header.height);
+    document.getElementById('blockHeight').textContent = latestHeight.toLocaleString();
 
     const valData = await api('/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100');
     validators = valData.validators || [];
@@ -170,13 +279,11 @@ async function fetchNetworkStats() {
     const jay = supplyData.supply.find(s => s.denom === DENOM);
     if (jay) {
       const pct = ((totalBonded / parseInt(jay.amount)) * 100).toFixed(1);
-      document.getElementById('stakedSub').textContent = pct + '% of supply';
+      document.getElementById('stakedSub').textContent = pct + '% of supply • Click for details';
     }
 
     renderValidators();
-  } catch (e) {
-    console.error('Network error:', e);
-  }
+  } catch (e) { console.error('Network error:', e); }
 }
 
 function renderValidators() {
@@ -197,14 +304,14 @@ function renderValidators() {
     const color = colors[i % colors.length];
     const validatorApr = (baseApr * (1 - parseFloat(v.commission.commission_rates.rate))).toFixed(1);
 
-    html += `<tr style="cursor:pointer" >
+    html += `<tr onclick='showValidatorDetail(${JSON.stringify(v).replace(/'/g,"\\'")})'>
       <td>${i+1}</td>
-      <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,${color},${color}88);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">${moniker.charAt(0)}</div><div><div style="font-weight:600;">${moniker}</div><div style="font-size:11px;color:#666">${shortAddr(v.operator_address)}</div></div></div></td>
+      <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,${color},${color}88);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">${moniker.charAt(0)}</div><div><div style="font-weight:600;color:#00d4ff">${moniker}</div><div style="font-size:11px;color:#666">${shortAddr(v.operator_address)}</div></div></div></td>
       <td><div>${fmtJAY(tokens)} JAY</div><div class="val-bar"><div class="val-bar-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div><div style="font-size:11px;color:#666;margin-top:2px">${pct}%</div></td>
       <td>${commission}%</td>
       <td style="color:#00ff88;font-weight:600">~${validatorApr}%</td>
       <td><span class="badge badge-green">Active</span></td>
-      <td><button class="btn btn-outline btn-sm" onclick="openStakeModalFor('${v.operator_address}','${moniker}')">Delegate</button></td>
+      <td><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openStakeModalFor('${v.operator_address}','${moniker}','${validatorApr}')">Delegate</button></td>
     </tr>`;
   });
 
@@ -216,25 +323,17 @@ function renderValidators() {
   ).join('');
 }
 
+// ─── Wallet ─────────────────────────────────
 async function connectWallet() {
   if (walletAddress) return;
   const w = window.keplr || window.leap;
   if (!w) { alert('Install Keplr or Leap!'); return; }
 
   const jayChain = {
-    chainId: CHAIN_ID,
-    chainName: 'The Jay Network',
-    rpc: 'https://api.thejaynetwork.com',
-    rest: API,
+    chainId: CHAIN_ID, chainName: 'The Jay Network',
+    rpc: 'https://api.thejaynetwork.com', rest: API,
     bip44: { coinType: 118 },
-    bech32Config: {
-      bech32PrefixAccAddr: 'yjay',
-      bech32PrefixAccPub: 'yjaypub',
-      bech32PrefixValAddr: 'yjayvaloper',
-      bech32PrefixValPub: 'yjayvaloperpub',
-      bech32PrefixConsAddr: 'yjayvalcons',
-      bech32PrefixConsPub: 'yjayvalconspub'
-    },
+    bech32Config: { bech32PrefixAccAddr: 'yjay', bech32PrefixAccPub: 'yjaypub', bech32PrefixValAddr: 'yjayvaloper', bech32PrefixValPub: 'yjayvaloperpub', bech32PrefixConsAddr: 'yjayvalcons', bech32PrefixConsPub: 'yjayvalconspub' },
     currencies: [{ coinDenom: 'JAY', coinMinimalDenom: 'ujay', coinDecimals: 6 }],
     feeCurrencies: [{ coinDenom: 'JAY', coinMinimalDenom: 'ujay', coinDecimals: 6, gasPriceStep: { low: 0.0025, average: 0.025, high: 0.04 } }],
     stakeCurrency: { coinDenom: 'JAY', coinMinimalDenom: 'ujay', coinDecimals: 6 },
@@ -249,9 +348,7 @@ async function connectWallet() {
     document.getElementById('walletBtn').textContent = shortAddr(walletAddress);
     document.getElementById('walletBtn').classList.add('connected');
     fetchPortfolio();
-  } catch (e) {
-    alert('Connection failed: ' + e.message);
-  }
+  } catch (e) { alert('Connection failed: ' + e.message); }
 }
 
 async function fetchPortfolio() {
@@ -262,7 +359,8 @@ async function fetchPortfolio() {
     const available = jay ? parseInt(jay.amount) : 0;
 
     const delData = await api('/cosmos/staking/v1beta1/delegations/' + walletAddress);
-    const staked = (delData.delegation_responses || []).reduce((s,d) => s + parseInt(d.balance.amount), 0);
+    const delegations = delData.delegation_responses || [];
+    const staked = delegations.reduce((s,d) => s + parseInt(d.balance.amount), 0);
 
     const rewData = await api('/cosmos/distribution/v1beta1/delegators/' + walletAddress + '/rewards');
     const totalRewards = rewData.total ? rewData.total.find(t => t.denom === DENOM) : null;
@@ -278,20 +376,25 @@ async function fetchPortfolio() {
       <div style="text-align:center">
         <div class="card-label">Pending Rewards</div>
         <div class="card-value" style="font-size:32px;color:#ffd700">${fmtJAY(rewardAmount)} JAY</div>
-        <div style="margin-top:16px"><button class="btn btn-success btn-sm">Claim All</button></div>
+        <div style="margin-top:16px"><button class="btn btn-success btn-sm" onclick="claimRewards()">Claim All</button></div>
       </div>`;
 
     document.getElementById('availBalance').textContent = fmtJAY(available);
   } catch (e) { console.error('Portfolio error:', e); }
 }
 
+async function claimRewards() { alert('Claim rewards requires Keplr browser. Open this page in Keplr.'); }
+
+// ─── Stake Modal ────────────────────────────
 function openStakeModal() { document.getElementById('stakeModal').classList.add('show'); }
-function openStakeModalFor(addr, name) {
+function openStakeModalFor(addr, name, apr) {
   document.getElementById('validatorSelect').value = addr;
+  document.getElementById('estApr').textContent = '~' + apr + '%';
   document.getElementById('stakeModal').classList.add('show');
 }
 function closeStakeModal() { document.getElementById('stakeModal').classList.remove('show'); }
 
+// ─── Init ───────────────────────────────────
 fetchNetworkStats();
 setInterval(fetchNetworkStats, 10000);
 </script>
