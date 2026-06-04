@@ -147,7 +147,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 </div>
 
 <script>
-const RPC = 'https://api.thejaynetwork.com';
+const API = 'https://api.thejaynetwork.com';
+const RPC = 'https://rpc.thejaynetwork.com';
 const CHAIN_ID = 'thejaynetwork';
 const DENOM = 'ujay';
 const DECIMALS = 6;
@@ -169,26 +170,26 @@ function shortAddr(addr) {
 async function fetchNetworkStats() {
   try {
     // Block height
-    const blockResp = await fetch(`${RPC}/blocks/latest`);
+    const blockResp = await fetch(`${RPC}/block/latest`);
     const blockData = await blockResp.json();
     const height = parseInt(blockData.block.header.height);
     document.getElementById('blockHeight').textContent = height.toLocaleString();
 
     // Validators
-    const valResp = await fetch(`${RPC}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`);
+    const valResp = await fetch(`${API}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`);
     const valData = await valResp.json();
     validators = valData.validators || [];
     document.getElementById('validatorCount').textContent = validators.length + ' / 200';
     document.getElementById('validatorSub').textContent = (200 - validators.length) + ' slots available';
 
     // Total bonded
-    const poolResp = await fetch(`${RPC}/cosmos/staking/v1beta1/pool`);
+    const poolResp = await fetch(`${API}/cosmos/staking/v1beta1/pool`);
     const poolData = await poolResp.json();
     totalBonded = parseInt(poolData.pool.bonded_tokens);
     document.getElementById('totalStaked').textContent = formatJAY(totalBonded) + ' JAY';
 
     // Supply for percentage
-    const supplyResp = await fetch(`${RPC}/cosmos/bank/v1beta1/supply`);
+    const supplyResp = await fetch(`${API}/cosmos/bank/v1beta1/supply`);
     const supplyData = await supplyResp.json();
     const jaySupply = supplyData.supply.find(s => s.denom === DENOM);
     if (jaySupply) {
@@ -319,19 +320,19 @@ async function fetchPortfolio() {
   if (!walletAddress) return;
   try {
     // Balance
-    const balResp = await fetch(`${RPC}/cosmos/bank/v1beta1/balances/${walletAddress}`);
+    const balResp = await fetch(`${API}/cosmos/bank/v1beta1/balances/${walletAddress}`);
     const balData = await balResp.json();
     const jay = balData.balances.find(b => b.denom === DENOM);
     const available = jay ? parseInt(jay.amount) : 0;
 
     // Delegations
-    const delResp = await fetch(`${RPC}/cosmos/staking/v1beta1/delegations/${walletAddress}`);
+    const delResp = await fetch(`${API}/cosmos/staking/v1beta1/delegations/${walletAddress}`);
     const delData = await delResp.json();
     const delegations = delData.delegation_responses || [];
     const staked = delegations.reduce((s, d) => s + parseInt(d.balance.amount), 0);
 
     // Rewards
-    const rewResp = await fetch(`${RPC}/cosmos/distribution/v1beta1/delegators/${walletAddress}/rewards`);
+    const rewResp = await fetch(`${API}/cosmos/distribution/v1beta1/delegators/${walletAddress}/rewards`);
     const rewData = await rewResp.json();
     const rewards = rewData.rewards || [];
     const totalRewards = rewData.total ? rewData.total.find(t => t.denom === DENOM) : null;
