@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JAY Explorer Tools</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;min-height:100vh}
+
+.nav{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:rgba(0,0,0,0.4);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06)}
+.nav-logo{font-size:22px;font-weight:800;background:linear-gradient(135deg,#00d4ff,#7b61ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+.container{max-width:1200px;margin:0 auto;padding:24px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px;transition:0.2s}
+.card:hover{border-color:rgba(0,212,255,0.2)}
+.card-label{font-size:12px;color:#666;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.card-value{font-size:28px;font-weight:800}
+.card-sub{font-size:12px;color:#555;margin-top:4px}
+.card-green .card-value{color:#00ff88}
+.card-blue .card-value{color:#00d4ff}
+.card-purple .card-value{color:#7b61ff}
+.card-orange .card-value{color:#ff922b}
+
+.section-title{font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+.table{width:100%;border-collapse:collapse}
+.table th{text-align:left;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.table td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:14px}
+.table tr:hover{background:rgba(255,255,255,0.02)}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:rgba(0,255,136,0.15);color:#00ff88}
+.badge-blue{background:rgba(0,212,255,0.15);color:#00d4ff}
+.badge-orange{background:rgba(255,146,43,0.15);color:#ff922b}
+
+.btn{border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-size:13px;transition:0.2s}
+.btn-primary{background:linear-gradient(135deg,#00d4ff,#7b61ff);color:#fff}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.15);color:#fff}
+.btn-sm{padding:7px 14px;font-size:12px}
+
+.tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(255,255,255,0.03);border-radius:12px;padding:4px;border:1px solid rgba(255,255,255,0.06)}
+.tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;color:#888;transition:0.2s}
+.tab.active{background:rgba(0,212,255,0.15);color:#00d4ff}
+
+/* Search */
+.search-box{display:flex;gap:12px;margin-bottom:24px}
+.search-input{flex:1;padding:14px 18px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:15px;outline:none}
+.search-input:focus{border-color:#00d4ff}
+.search-input::placeholder{color:#555}
+
+/* Block cards */
+.block-card{display:flex;align-items:center;gap:16px;padding:16px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid rgba(255,255,255,0.05);margin-bottom:8px}
+.block-num{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#7b61ff);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800}
+.block-info{flex:1}
+.block-info h4{font-size:15px;font-weight:600}
+.block-info p{font-size:12px;color:#666;margin-top:2px}
+.block-meta{text-align:right;font-size:12px;color:#888}
+.block-meta .txs{color:#00d4ff;font-weight:600}
+
+/* Tx row */
+.tx-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.tx-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.tx-icon.send{background:rgba(0,212,255,0.15)}
+.tx-icon.delegate{background:rgba(0,255,136,0.15)}
+.tx-icon.vote{background:rgba(123,97,255,0.15)}
+.tx-info{flex:1}
+.tx-info h4{font-size:14px;font-weight:600}
+.tx-info p{font-size:11px;color:#666}
+.tx-amount{text-align:right}
+.tx-amount .amount{font-weight:600;font-size:14px}
+.tx-amount .time{font-size:11px;color:#666}
+
+/* Whale alert */
+.whale-card{padding:16px;background:rgba(255,146,43,0.05);border:1px solid rgba(255,146,43,0.15);border-radius:12px;margin-bottom:8px}
+.whale-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.whale-header h4{font-size:14px;color:#ff922b}
+.whale-header .time{font-size:11px;color:#666}
+.whale-body{font-size:13px;color:#ccc}
+.whale-body .amount{color:#ffd700;font-weight:700}
+
+/* Proposal */
+.proposal-card{padding:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;margin-bottom:8px}
+.proposal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.proposal-header h4{font-size:14px}
+.vote-bar{height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;display:flex;margin-top:8px}
+.vote-yes{background:#00ff88}
+.vote-no{background:#ff4444}
+.vote-abstain{background:#888}
+.vote-nowith{background:#ff922b}
+.vote-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:#666}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">JAY Explorer</div>
+  <div style="display:flex;gap:16px;align-items:center">
+    <span style="font-size:12px;color:#666">Block #563,973</span>
+    <span style="font-size:12px;color:#00ff88">● Online</span>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- Search -->
+  <div class="search-box">
+    <input class="search-input" placeholder="Search by address, tx hash, block height, or validator...">
+    <button class="btn btn-primary">Search</button>
+  </div>
+
+  <!-- Network Stats -->
+  <div class="grid-4">
+    <div class="card card-blue">
+      <div class="card-label">Block Height</div>
+      <div class="card-value" id="blockHeight">563,973</div>
+      <div class="card-sub">~5s block time</div>
+    </div>
+    <div class="card card-green">
+      <div class="card-label">Total Transactions</div>
+      <div class="card-value">1.2M</div>
+      <div class="card-sub">+2,341 today</div>
+    </div>
+    <div class="card card-purple">
+      <div class="card-label">Total Accounts</div>
+      <div class="card-value">8,456</div>
+      <div class="card-sub">+127 this week</div>
+    </div>
+    <div class="card card-orange">
+      <div class="card-label">JAY Supply</div>
+      <div class="card-value">1.51B</div>
+      <div class="card-sub">94.6M staked (62%)</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Latest Blocks -->
+    <div class="card">
+      <div class="section-title">🧱 Latest Blocks</div>
+      <div class="block-card">
+        <div class="block-num">563,973</div>
+        <div class="block-info">
+          <h4>Block #563,973</h4>
+          <p>Validator: jay-validator-2</p>
+        </div>
+        <div class="block-meta">
+          <div class="txs">3 txs</div>
+          <div>5s ago</div>
+        </div>
+      </div>
+      <div class="block-card">
+        <div class="block-num">563,972</div>
+        <div class="block-info">
+          <h4>Block #563,972</h4>
+          <p>Validator: Vinjan.Inc</p>
+        </div>
+        <div class="block-meta">
+          <div class="txs">1 tx</div>
+          <div>10s ago</div>
+        </div>
+      </div>
+      <div class="block-card">
+        <div class="block-num">563,971</div>
+        <div class="block-info">
+          <h4>Block #563,971</h4>
+          <p>Validator: RydOne</p>
+        </div>
+        <div class="block-meta">
+          <div class="txs">5 txs</div>
+          <div>15s ago</div>
+        </div>
+      </div>
+      <div class="block-card">
+        <div class="block-num">563,970</div>
+        <div class="block-info">
+          <h4>Block #563,970</h4>
+          <p>Validator: pilex3173</p>
+        </div>
+        <div class="block-meta">
+          <div class="txs">0 txs</div>
+          <div>20s ago</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latest Transactions -->
+    <div class="card">
+      <div class="section-title">📝 Latest Transactions</div>
+      <div class="tx-row">
+        <div class="tx-icon send">📤</div>
+        <div class="tx-info">
+          <h4>Send</h4>
+          <p>yjay1hcn...67z36 → yjay1x8k...2m9a</p>
+        </div>
+        <div class="tx-amount">
+          <div class="amount" style="color:#00d4ff">500 JAY</div>
+          <div class="time">12s ago</div>
+        </div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-icon delegate">🥩</div>
+        <div class="tx-info">
+          <h4>Delegate</h4>
+          <p>yjay1q4m...7b3f → Vinjan.Inc</p>
+        </div>
+        <div class="tx-amount">
+          <div class="amount" style="color:#00ff88">10,000 JAY</div>
+          <div class="time">28s ago</div>
+        </div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-icon send">📤</div>
+        <div class="tx-info">
+          <h4>Send</h4>
+          <p>yjay1a9b...3d2e → yjay1g5h...1c8f</p>
+        </div>
+        <div class="tx-amount">
+          <div class="amount" style="color:#00d4ff">1,250 JAY</div>
+          <div class="time">45s ago</div>
+        </div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-icon vote">🗳️</div>
+        <div class="tx-info">
+          <h4>Vote</h4>
+          <p>yjay1d2f...8a1b → Proposal #3: YES</p>
+        </div>
+        <div class="tx-amount">
+          <div class="amount" style="color:#7b61ff">Vote</div>
+          <div class="time">1m ago</div>
+        </div>
+      </div>
+      <div class="tx-row">
+        <div class="tx-icon delegate">🎁</div>
+        <div class="tx-info">
+          <h4>Claim Rewards</h4>
+          <p>yjay1hcn...67z36</p>
+        </div>
+        <div class="tx-amount">
+          <div class="amount" style="color:#ffd700">234.56 JAY</div>
+          <div class="time">2m ago</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Whale Alerts -->
+    <div class="card">
+      <div class="section-title">🐋 Whale Alerts (24h)</div>
+      <div class="whale-card">
+        <div class="whale-header">
+          <h4>🐋 Large Transfer</h4>
+          <span class="time">3h ago</span>
+        </div>
+        <div class="whale-body">
+          <span class="amount">5,000,000 JAY</span> transferred from yjay1...a9b3 to yjay1...x8k2
+        </div>
+      </div>
+      <div class="whale-card">
+        <div class="whale-header">
+          <h4>🥩 Large Delegation</h4>
+          <span class="time">6h ago</span>
+        </div>
+        <div class="whale-body">
+          <span class="amount">2,000,000 JAY</span> delegated to Vinjan.Inc
+        </div>
+      </div>
+      <div class="whale-card">
+        <div class="whale-header">
+          <h4>🐋 Large Transfer</h4>
+          <span class="time">12h ago</span>
+        </div>
+        <div class="whale-body">
+          <span class="amount">1,500,000 JAY</span> transferred from yjay1...q4m7 to yjay1...d2f8
+        </div>
+      </div>
+    </div>
+
+    <!-- Governance -->
+    <div class="card">
+      <div class="section-title">🗳️ Governance Proposals</div>
+      <div class="proposal-card">
+        <div class="proposal-header">
+          <h4>Proposal #3: Increase Max Validators</h4>
+          <span class="badge badge-green">Voting</span>
+        </div>
+        <p style="font-size:13px;color:#888;margin-bottom:8px">Increase max validators from 200 to 300</p>
+        <div class="vote-bar">
+          <div class="vote-yes" style="width:78%"></div>
+          <div class="vote-no" style="width:12%"></div>
+          <div class="vote-abstain" style="width:7%"></div>
+          <div class="vote-nowith" style="width:3%"></div>
+        </div>
+        <div class="vote-labels">
+          <span>Yes 78%</span>
+          <span>No 12%</span>
+          <span>Abstain 7%</span>
+          <span>NoW 3%</span>
+        </div>
+      </div>
+      <div class="proposal-card">
+        <div class="proposal-header">
+          <h4>Proposal #2: Community Pool Spend</h4>
+          <span class="badge badge-blue">Passed</span>
+        </div>
+        <p style="font-size:13px;color:#888;margin-bottom:8px">Fund 100,000 JAY for ecosystem development</p>
+        <div class="vote-bar">
+          <div class="vote-yes" style="width:92%"></div>
+          <div class="vote-no" style="width:5%"></div>
+          <div class="vote-abstain" style="width:3%"></div>
+        </div>
+        <div class="vote-labels">
+          <span>Yes 92%</span>
+          <span>No 5%</span>
+          <span>Abstain 3%</span>
+        </div>
+      </div>
+      <div class="proposal-card">
+        <div class="proposal-header">
+          <h4>Proposal #1: Chain Parameters</h4>
+          <span class="badge badge-blue">Passed</span>
+        </div>
+        <p style="font-size:13px;color:#888;margin-bottom:8px">Set block time to 5 seconds</p>
+        <div class="vote-bar">
+          <div class="vote-yes" style="width:100%"></div>
+        </div>
+        <div class="vote-labels">
+          <span>Yes 100%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Accounts -->
+  <div class="card">
+    <div class="section-title">💰 Top Accounts</div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Address</th>
+          <th>Balance</th>
+          <th>% Supply</th>
+          <th>Txs</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td style="font-family:monospace;font-size:13px">yjay1validator...q4m7</td>
+          <td>70,068,477 JAY</td>
+          <td>4.64%</td>
+          <td>12,456</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td style="font-family:monospace;font-size:13px">yjay1community...pool</td>
+          <td>45,230,000 JAY</td>
+          <td>2.99%</td>
+          <td>234</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td style="font-family:monospace;font-size:13px">yjay1whale...a9b3</td>
+          <td>12,450,000 JAY</td>
+          <td>0.82%</td>
+          <td>1,892</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+// Auto-increment block height
+let height = 563973;
+setInterval(() => {
+  height++;
+  document.getElementById('blockHeight').textContent = height.toLocaleString();
+}, 5000);
+</script>
+
+</body>
+</html>
