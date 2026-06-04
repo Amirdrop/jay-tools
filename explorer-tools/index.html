@@ -98,7 +98,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
     </div>
     <div class="card">
       <div class="section-title">📝 Latest Transactions</div>
-      <div id="txsList"><div class="loading"><span class="spinner"></span> Loading transactions...</div></div>
+      <div id="txsList"><div class="loading"><span class="spinner"></span> Scanning blocks for transactions...</div></div>
     </div>
   </div>
 
@@ -307,6 +307,61 @@ function doSearch() {
 
 fetchAll();
 setInterval(fetchAll, 15000);
+
+async function fetchTxs() {
+  try {
+    const latest = await api('/cosmos/base/tendermint/v1beta1/blocks/latest');
+    const height = parseInt(latest.block.header.height);
+    const txs = [];
+
+    // Scan last 20 blocks for transactions
+    for (let i = 0; i < 20 && txs.length < 8; i++) {
+      const h = height - i;
+      const block = await api('/cosmos/base/tendermint/v1beta1/blocks/' + h);
+      const blockTxs = block.block.data.txs || [];
+      const time = new Date(block.block.header.time);
+
+      blockTxs.forEach((tx, idx) => {
+        // Decode basic info from raw tx (base64)
+        txs.push({
+          height: h,
+          time: time,
+          hash: 'tx_' + h + '_' + idx,
+          raw: tx.slice(0, 40) + '...'
+        });
+      });
+    }
+
+    if (txs.length === 0) {
+      document.getElementById('txsList').innerHTML = '<div class="loading" style="color:#888">No recent transactions found</div>';
+      return;
+    }
+
+    const now = Date.now();
+    let html = '';
+    txs.slice(0, 8).forEach(tx => {
+      const sec = Math.floor((now - tx.time.getTime()) / 1000);
+      html += `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.03)">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,212,255,0.15);display:flex;align-items:center;justify-content:center;font-size:14px">📤</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600">Transaction</div>
+          <div style="font-size:11px;color:#666">Block #${tx.height.toLocaleString()}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:12px;color:#00d4ff">Tx</div>
+          <div style="font-size:11px;color:#666">${timeAgo(Math.max(sec, 0))}</div>
+        </div>
+      </div>`;
+    });
+    document.getElementById('txsList').innerHTML = html;
+  } catch (e) {
+    console.error('Txs error:', e);
+    document.getElementById('txsList').innerHTML = '<div class="loading">Error loading transactions</div>';
+  }
+}
+
+fetchTxs();
+setInterval(fetchTxs, 15000);
 </script>
 
 </body>
