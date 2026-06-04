@@ -144,6 +144,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 <script>
 // API only
 const API = 'https://api.thejaynetwork.com';
+const PROXY = 'https://corsproxy.io/?';
 const DENOM = 'ujay';
 const DEC = 6;
 
@@ -186,22 +187,22 @@ async function fetchAll() {
 async function fetchStats() {
   try {
     // Block height
-    const block = await (await fetch(`${API}/cosmos/base/tendermint/v1beta1/blocks/latest`)).json();
+    const block = await (await fetch(`${PROXY}${API}/cosmos/base/tendermint/v1beta1/blocks/latest`)).json();
     const height = parseInt(block.block.header.height);
     document.getElementById('blockHeight').textContent = height.toLocaleString();
     document.getElementById('navHeight').textContent = '#' + height.toLocaleString();
 
     // Supply
-    const supply = await (await fetch(`${API}/cosmos/bank/v1beta1/supply`)).json();
+    const supply = await (await fetch(`${PROXY}${API}/cosmos/bank/v1beta1/supply`)).json();
     const jay = supply.supply.find(s => s.denom === DENOM);
     if (jay) document.getElementById('totalSupply').textContent = formatJAY(jay.amount);
 
     // Validators
-    const vals = await (await fetch(`${API}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED`)).json();
+    const vals = await (await fetch(`${PROXY}${API}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED`)).json();
     document.getElementById('validatorCount').textContent = (vals.validators || []).length;
 
     // Community pool
-    const pool = await (await fetch(`${API}/cosmos/distribution/v1beta1/community_pool`)).json();
+    const pool = await (await fetch(`${PROXY}${API}/cosmos/distribution/v1beta1/community_pool`)).json();
     const poolJAY = pool.pool.find(p => p.denom === DENOM);
     if (poolJAY) document.getElementById('communityPool').textContent = formatJAY(poolJAY.amount);
   } catch (e) { console.error('Stats error:', e); }
@@ -209,14 +210,14 @@ async function fetchStats() {
 
 async function fetchBlocks() {
   try {
-    const latest = await (await fetch(`${API}/cosmos/base/tendermint/v1beta1/blocks/latest`)).json();
+    const latest = await (await fetch(`${PROXY}${API}/cosmos/base/tendermint/v1beta1/blocks/latest`)).json();
     const height = parseInt(latest.block.header.height);
     const blocks = [];
 
     // Fetch last 5 blocks
     for (let i = 0; i < 5; i++) {
       const h = height - i;
-      const block = await (await fetch(`${API}/cosmos/base/tendermint/v1beta1/blocks/latest?height=${h}`)).json();
+      const block = await (await fetch(`${PROXY}${API}/cosmos/base/tendermint/v1beta1/blocks/latest?height=${h}`)).json();
       const time = new Date(block.block.header.time);
       const proposer = block.block.header.proposer_address;
       const txs = block.block.data.txs || [];
@@ -224,7 +225,7 @@ async function fetchBlocks() {
     }
 
     // Get validator monikers
-    const vals = await (await fetch(`${API}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED`)).json();
+    const vals = await (await fetch(`${PROXY}${API}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED`)).json();
     const valMap = {};
     (vals.validators || []).forEach(v => {
       // Map consensus address to moniker (simplified)
@@ -255,7 +256,7 @@ async function fetchBlocks() {
 
 async function fetchProposals() {
   try {
-    const resp = await fetch(`${API}/cosmos/gov/v1/proposals?pagination.limit=5`);
+    const resp = await fetch(`${PROXY}${API}/cosmos/gov/v1/proposals?pagination.limit=5`);
     const data = await resp.json();
     const proposals = data.proposals || [];
 
@@ -306,7 +307,7 @@ async function fetchProposals() {
 
 async function fetchValidators() {
   try {
-    const resp = await fetch(`${API}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`);
+    const resp = await fetch(`${PROXY}${API}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`);
     const data = await resp.json();
     const vals = (data.validators || []).sort((a, b) => parseInt(b.tokens) - parseInt(a.tokens));
     const total = vals.reduce((s, v) => s + parseInt(v.tokens), 0);
