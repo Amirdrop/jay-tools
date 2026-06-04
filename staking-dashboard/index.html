@@ -262,14 +262,57 @@ async function connectWallet() {
   if (walletAddress) return;
   const w = window.keplr || window.leap;
   if (!w) { alert('Install Keplr or Leap wallet!'); return; }
+
+  // JAY Network chain config
+  const jayChain = {
+    chainId: CHAIN_ID,
+    chainName: 'The Jay Network',
+    rpc: 'http://152.53.195.5:26657',
+    rest: RPC,
+    bip44: { coinType: 118 },
+    bech32Config: {
+      bech32PrefixAccAddr: 'yjay',
+      bech32PrefixAccPub: 'yjaypub',
+      bech32PrefixValAddr: 'yjayvaloper',
+      bech32PrefixValPub: 'yjayvaloperpub',
+      bech32PrefixConsAddr: 'yjayvalcons',
+      bech32PrefixConsPub: 'yjayvalconspub'
+    },
+    currencies: [{
+      coinDenom: 'JAY',
+      coinMinimalDenom: 'ujay',
+      coinDecimals: 6,
+      coinGeckoId: undefined
+    }],
+    feeCurrencies: [{
+      coinDenom: 'JAY',
+      coinMinimalDenom: 'ujay',
+      coinDecimals: 6,
+      gasPriceStep: { low: 0.0025, average: 0.025, high: 0.04 }
+    }],
+    stakeCurrency: {
+      coinDenom: 'JAY',
+      coinMinimalDenom: 'ujay',
+      coinDecimals: 6
+    },
+    features: ['stargate', 'ibc-transfer']
+  };
+
   try {
+    // Try to suggest chain first (for Keplr)
+    if (w.experimentalSuggestChain) {
+      await w.experimentalSuggestChain(jayChain);
+    }
     await w.enable(CHAIN_ID);
     const key = await w.getKey(CHAIN_ID);
     walletAddress = key.bech32Address;
     document.getElementById('walletBtn').textContent = shortAddr(walletAddress);
     document.getElementById('walletBtn').classList.add('connected');
     fetchPortfolio();
-  } catch (e) { alert('Connection rejected.'); }
+  } catch (e) {
+    console.error('Wallet connect error:', e);
+    alert('Failed to connect: ' + e.message);
+  }
 }
 
 async function fetchPortfolio() {
