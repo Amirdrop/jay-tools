@@ -147,7 +147,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 </div>
 
 <script>
-const RPC = 'http://152.53.195.5:1317';
+const RPC = 'https://api.thejaynetwork.com';
 const CHAIN_ID = 'thejaynetwork';
 const DENOM = 'ujay';
 const DECIMALS = 6;
@@ -267,7 +267,7 @@ async function connectWallet() {
   const jayChain = {
     chainId: CHAIN_ID,
     chainName: 'The Jay Network',
-    rpc: 'http://152.53.195.5:26657',
+    rpc: 'https://rpc.thejaynetwork.com',
     rest: RPC,
     bip44: { coinType: 118 },
     bech32Config: {

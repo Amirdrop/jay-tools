@@ -142,9 +142,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 </div>
 
 <script>
-const RPC = 'http://152.53.195.5:1317';
+const RPC = 'https://api.thejaynetwork.com';
 const DENOM = 'ujay';
 const DEC = 6;
+
+async function fetchWithFallback(path) {
+  try {
+    const resp = await fetch(`${RPC}${path}`, { signal: AbortSignal.timeout(10000) });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    return await resp.json();
+  } catch (e) {
+    console.error('Fetch error:', e);
+    throw e;
+  }
+}
 
 function formatJAY(ujay) {
   const n = parseInt(ujay) / Math.pow(10, DEC);
