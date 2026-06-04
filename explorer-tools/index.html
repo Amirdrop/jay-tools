@@ -118,7 +118,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 // CORS proxy - JAY Network API sends duplicate CORS headers
 const PROXY = 'https://corsproxy.io/?';
 const API = 'https://api.thejaynetwork.com';
-const EXPLORER = 'https://jayscan.thejaynetwork.com';
 const DENOM = 'ujay';
 const DEC = 6;
 
@@ -151,8 +150,8 @@ async function fetchStats() {
     // Block
     const block = await api('/cosmos/base/tendermint/v1beta1/blocks/latest');
     const height = parseInt(block.block.header.height);
-    document.getElementById('blockHeight').innerHTML = `<a href="${EXPLORER}/block/${height}" target="_blank" style="color:#00d4ff;text-decoration:none">${height.toLocaleString()}</a>`;
-    document.getElementById('navHeight').innerHTML = `<a href="${EXPLORER}/block/${height}" target="_blank" style="color:#00d4ff;text-decoration:none">#${height.toLocaleString()}</a>`;
+    document.getElementById('blockHeight').innerHTML = `${height.toLocaleString()}`;
+    document.getElementById('navHeight').innerHTML = `#${height.toLocaleString()}`;
 
     // Supply
     const supply = await api('/cosmos/bank/v1beta1/supply');
@@ -192,8 +191,8 @@ async function fetchBlocks() {
       const txs = block.block.data.txs || [];
       const sec = Math.floor((now - time.getTime()) / 1000);
 
-      html += `<a href="${EXPLORER}/block/${h}" target="_blank" style="text-decoration:none;color:inherit">
-      <div class="block-card" style="cursor:pointer">
+      html += `
+      <div class="block-card" >
         <div class="block-num">${h.toLocaleString()}</div>
         <div class="block-info">
           <h4>Block #${h.toLocaleString()}</h4>
@@ -204,7 +203,7 @@ async function fetchBlocks() {
           <div>${timeAgo(Math.max(sec, 0))}</div>
         </div>
       </div>
-      </a>`;
+      `;
     }
     document.getElementById('blocksList').innerHTML = html;
   } catch (e) {
@@ -239,8 +238,8 @@ async function fetchProposals() {
       else if (status === 'PROPOSAL_STATUS_PASSED') badge = '<span class="badge badge-green">Passed</span>';
       else badge = '<span class="badge" style="background:rgba(255,255,255,0.1);color:#888">' + status.split('_').pop() + '</span>';
 
-      html += `<a href="${EXPLORER}/governance/${id}" target="_blank" style="text-decoration:none;color:inherit">
-      <div class="proposal-card" style="cursor:pointer">
+      html += `
+      <div class="proposal-card" >
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <h4 style="font-size:14px;color:#00d4ff">#${id}: ${title.slice(0,50)}</h4>
           ${badge}
@@ -256,7 +255,7 @@ async function fetchProposals() {
           <span>Abstain ${(abstain/total*100).toFixed(0)}%</span>
         </div>
       </div>
-      </a>`;
+      `;
     });
     document.getElementById('proposalsList').innerHTML = html;
   } catch (e) {
@@ -280,7 +279,7 @@ async function fetchValidators() {
       const apr = (40.9 * (1 - parseFloat(v.commission.commission_rates.rate))).toFixed(1);
       const color = colors[i % colors.length];
 
-      html += `<tr style="cursor:pointer" onclick="window.open('${EXPLORER}/address/${v.operator_address}','_blank')">
+      html += `<tr  >
         <td>${i+1}</td>
         <td>
           <div style="display:flex;align-items:center;gap:8px">
@@ -392,7 +391,7 @@ async function fetchTxs() {
         amountStr = `<div style="font-size:14px;font-weight:600;color:#00d4ff">${tx.amount} ${tx.denom}</div>`;
       }
 
-      html += `<a href="${EXPLORER}/block/${tx.height}" target="_blank" style="text-decoration:none;color:inherit">
+      html += `
       <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer">
         <div style="width:36px;height:36px;border-radius:10px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:14px">${icon}</div>
         <div style="flex:1">
@@ -405,7 +404,7 @@ async function fetchTxs() {
           <div style="font-size:11px;color:#666">${timeAgo(Math.max(sec, 0))}</div>
         </div>
       </div>
-      </a>`;
+      `;
     });
     document.getElementById('txsList').innerHTML = html;
   } catch (e) {
