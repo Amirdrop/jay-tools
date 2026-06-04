@@ -132,6 +132,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 <script>
 const PROXY = 'https://corsproxy.io/?';
 const API = 'https://api.thejaynetwork.com';
+const EXPLORER = 'https://jayscan.thejaynetwork.com';
 const CHAIN_ID = 'thejaynetwork';
 const DENOM = 'ujay';
 const DECIMALS = 6;
@@ -197,9 +198,9 @@ function renderValidators() {
     const color = colors[i % colors.length];
     const validatorApr = (baseApr * (1 - parseFloat(v.commission.commission_rates.rate))).toFixed(1);
 
-    html += `<tr>
+    html += `<tr style="cursor:pointer" onclick="window.open('${EXPLORER}/address/${v.operator_address}','_blank')">
       <td>${i+1}</td>
-      <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,${color},${color}88);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">${moniker.charAt(0)}</div><div><div style="font-weight:600">${moniker}</div><div style="font-size:11px;color:#666">${shortAddr(v.operator_address)}</div></div></div></td>
+      <td><div style="display:flex;align-items:center;gap:10px"><div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,${color},${color}88);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">${moniker.charAt(0)}</div><div><div style="font-weight:600;color:#00d4ff;text-decoration:underline">${moniker}</div><div style="font-size:11px;color:#666">${shortAddr(v.operator_address)}</div></div></div></td>
       <td><div>${fmtJAY(tokens)} JAY</div><div class="val-bar"><div class="val-bar-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div><div style="font-size:11px;color:#666;margin-top:2px">${pct}%</div></td>
       <td>${commission}%</td>
       <td style="color:#00ff88;font-weight:600">~${validatorApr}%</td>
