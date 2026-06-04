@@ -1,4 +1,3 @@
-<!-- v3 cache bust -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,12 +28,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
 .badge-green{background:rgba(0,255,136,0.15);color:#00ff88}
 .badge-blue{background:rgba(0,212,255,0.15);color:#00d4ff}
-.btn{border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-size:13px}
-.btn-primary{background:linear-gradient(135deg,#00d4ff,#7b61ff);color:#fff}
 .search-box{display:flex;gap:12px;margin-bottom:24px}
 .search-input{flex:1;padding:14px 18px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:15px;outline:none}
 .search-input:focus{border-color:#00d4ff}
-.search-input::placeholder{color:#555}
+.btn{border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-size:13px}
+.btn-primary{background:linear-gradient(135deg,#00d4ff,#7b61ff);color:#fff}
 .block-card{display:flex;align-items:center;gap:16px;padding:16px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid rgba(255,255,255,0.05);margin-bottom:8px}
 .block-num{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#7b61ff);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
 .block-info{flex:1}
@@ -42,33 +40,15 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 .block-info p{font-size:12px;color:#666;margin-top:2px}
 .block-meta{text-align:right;font-size:12px;color:#888}
 .block-meta .txs{color:#00d4ff;font-weight:600}
-.tx-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
-.tx-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.tx-icon.send{background:rgba(0,212,255,0.15)}
-.tx-icon.delegate{background:rgba(0,255,136,0.15)}
-.tx-info{flex:1}
-.tx-info h4{font-size:14px;font-weight:600}
-.tx-info p{font-size:11px;color:#666}
-.tx-amount{text-align:right}
-.tx-amount .amount{font-weight:600;font-size:14px}
-.tx-amount .time{font-size:11px;color:#666}
-.whale-card{padding:16px;background:rgba(255,146,43,0.05);border:1px solid rgba(255,146,43,0.15);border-radius:12px;margin-bottom:8px}
-.whale-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.whale-header h4{font-size:14px;color:#ff922b}
-.whale-header .time{font-size:11px;color:#666}
-.whale-body{font-size:13px;color:#ccc}
-.whale-body .amount{color:#ffd700;font-weight:700}
+.loading{color:#666;font-size:13px;text-align:center;padding:40px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.1);border-top-color:#00d4ff;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
 .proposal-card{padding:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;margin-bottom:8px}
-.proposal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .vote-bar{height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;display:flex;margin-top:8px}
 .vote-yes{background:#00ff88}
 .vote-no{background:#ff4444}
 .vote-abstain{background:#888}
-.vote-nowith{background:#ff922b}
 .vote-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:#666}
-.loading{color:#666;font-size:13px;text-align:center;padding:40px}
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.1);border-top-color:#00d4ff;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
 @media(max-width:768px){.grid-4{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
@@ -83,13 +63,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 </nav>
 
 <div class="container">
-  <!-- Search -->
   <div class="search-box">
     <input class="search-input" id="searchInput" placeholder="Search by address, tx hash, block height..." onkeydown="if(event.key==='Enter')doSearch()">
     <button class="btn btn-primary" onclick="doSearch()">Search</button>
   </div>
 
-  <!-- Network Stats -->
   <div class="grid-4">
     <div class="card card-blue">
       <div class="card-label">Block Height</div>
@@ -114,13 +92,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
   </div>
 
   <div class="grid-2">
-    <!-- Latest Blocks -->
     <div class="card">
       <div class="section-title">🧱 Latest Blocks</div>
       <div id="blocksList"><div class="loading"><span class="spinner"></span> Loading blocks...</div></div>
     </div>
-
-    <!-- Latest Transactions -->
     <div class="card">
       <div class="section-title">📝 Latest Transactions</div>
       <div id="txsList"><div class="loading"><span class="spinner"></span> Loading transactions...</div></div>
@@ -128,13 +103,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
   </div>
 
   <div class="grid-2">
-    <!-- Governance -->
     <div class="card">
       <div class="section-title">🗳️ Governance Proposals</div>
       <div id="proposalsList"><div class="loading"><span class="spinner"></span> Loading proposals...</div></div>
     </div>
-
-    <!-- Top Validators -->
     <div class="card">
       <div class="section-title">🏆 Top Validators</div>
       <div id="topValidators"><div class="loading"><span class="spinner"></span> Loading validators...</div></div>
@@ -143,122 +115,104 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 </div>
 
 <script>
-// API only
-const API = 'https://api.thejaynetwork.com';
+// CORS proxy - JAY Network API sends duplicate CORS headers
 const PROXY = 'https://corsproxy.io/?';
+const API = 'https://api.thejaynetwork.com';
 const DENOM = 'ujay';
 const DEC = 6;
 
-async function fetchWithFallback(path) {
-  try {
-    const resp = await fetch(`${PROXY}${API}${path}`, { signal: AbortSignal.timeout(10000) });
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return await resp.json();
-  } catch (e) {
-    console.error('Fetch error:', e);
-    throw e;
-  }
-}
-
-function formatJAY(ujay) {
-  const n = parseInt(ujay) / Math.pow(10, DEC);
-  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
-  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+function fmtJAY(u) {
+  const n = parseFloat(u) / Math.pow(10, DEC);
+  if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
   return n.toFixed(2);
 }
 
-function shortAddr(a) { return a ? a.slice(0, 10) + '...' + a.slice(-6) : '—'; }
-function shortHash(h) { return h ? h.slice(0, 10) + '...' + h.slice(-8) : '—'; }
+function shortAddr(a) { return a ? a.slice(0,10) + '...' + a.slice(-6) : '—'; }
 function timeAgo(sec) {
   if (sec < 60) return sec + 's ago';
-  if (sec < 3600) return Math.floor(sec / 60) + 'm ago';
-  return Math.floor(sec / 3600) + 'h ago';
+  if (sec < 3600) return Math.floor(sec/60) + 'm ago';
+  return Math.floor(sec/3600) + 'h ago';
 }
 
-// ─── Fetch All Data ───────────────────────────
+async function api(path) {
+  const resp = await fetch(PROXY + API + path, { signal: AbortSignal.timeout(15000) });
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  return resp.json();
+}
+
 async function fetchAll() {
-  await Promise.all([
-    fetchStats(),
-    fetchBlocks(),
-    fetchProposals(),
-    fetchValidators()
-  ]);
+  await Promise.allSettled([fetchStats(), fetchBlocks(), fetchProposals(), fetchValidators()]);
 }
 
 async function fetchStats() {
   try {
-    // Block height
-    const block = await (await fetch(`${PROXY}${API}/cosmos/base/tendermint/v1beta1/blocks/latest`)).json();
+    // Block
+    const block = await api('/cosmos/base/tendermint/v1beta1/blocks/latest');
     const height = parseInt(block.block.header.height);
     document.getElementById('blockHeight').textContent = height.toLocaleString();
     document.getElementById('navHeight').textContent = '#' + height.toLocaleString();
 
     // Supply
-    const supply = await (await fetch(`${PROXY}${API}/cosmos/bank/v1beta1/supply`)).json();
+    const supply = await api('/cosmos/bank/v1beta1/supply');
     const jay = supply.supply.find(s => s.denom === DENOM);
-    if (jay) document.getElementById('totalSupply').textContent = formatJAY(jay.amount);
+    if (jay) document.getElementById('totalSupply').textContent = fmtJAY(jay.amount);
 
     // Validators
-    const vals = await (await fetch(`${PROXY}${API}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED`)).json();
+    const vals = await api('/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED');
     document.getElementById('validatorCount').textContent = (vals.validators || []).length;
 
     // Community pool
-    const pool = await (await fetch(`${PROXY}${API}/cosmos/distribution/v1beta1/community_pool`)).json();
+    const pool = await api('/cosmos/distribution/v1beta1/community_pool');
     const poolJAY = pool.pool.find(p => p.denom === DENOM);
-    if (poolJAY) document.getElementById('communityPool').textContent = formatJAY(poolJAY.amount);
-  } catch (e) { console.error('Stats error:', e); }
+    if (poolJAY) document.getElementById('communityPool').textContent = fmtJAY(poolJAY.amount);
+  } catch (e) {
+    console.error('Stats error:', e);
+    document.getElementById('blockHeight').textContent = 'Error';
+  }
 }
 
 async function fetchBlocks() {
   try {
-    const latest = await (await fetch(`${PROXY}${API}/cosmos/base/tendermint/v1beta1/blocks/latest`)).json();
+    const latest = await api('/cosmos/base/tendermint/v1beta1/blocks/latest');
     const height = parseInt(latest.block.header.height);
-    const blocks = [];
-
-    // Fetch last 5 blocks
-    for (let i = 0; i < 5; i++) {
-      const h = height - i;
-      const block = await (await fetch(`${PROXY}${API}/cosmos/base/tendermint/v1beta1/blocks/latest?height=${h}`)).json();
-      const time = new Date(block.block.header.time);
-      const proposer = block.block.header.proposer_address;
-      const txs = block.block.data.txs || [];
-      blocks.push({ height: h, time, proposer, txCount: txs.length });
-    }
-
-    // Get validator monikers
-    const vals = await (await fetch(`${PROXY}${API}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED`)).json();
-    const valMap = {};
-    (vals.validators || []).forEach(v => {
-      // Map consensus address to moniker (simplified)
-      valMap[v.operator_address] = v.description.moniker;
-    });
-
     const now = Date.now();
     let html = '';
-    blocks.forEach(b => {
-      const sec = Math.floor((now - b.time.getTime()) / 1000);
+
+    for (let i = 0; i < 5; i++) {
+      const h = height - i;
+      let block;
+      if (i === 0) {
+        block = latest;
+      } else {
+        block = await api('/cosmos/base/tendermint/v1beta1/blocks/' + h);
+      }
+      const time = new Date(block.block.header.time);
+      const txs = block.block.data.txs || [];
+      const sec = Math.floor((now - time.getTime()) / 1000);
+
       html += `<div class="block-card">
-        <div class="block-num">${b.height.toLocaleString()}</div>
+        <div class="block-num">${h.toLocaleString()}</div>
         <div class="block-info">
-          <h4>Block #${b.height.toLocaleString()}</h4>
-          <p>${b.txCount} transaction${b.txCount !== 1 ? 's' : ''}</p>
+          <h4>Block #${h.toLocaleString()}</h4>
+          <p>${txs.length} transaction${txs.length !== 1 ? 's' : ''}</p>
         </div>
         <div class="block-meta">
-          <div class="txs">${b.txCount} txs</div>
-          <div>${timeAgo(sec)}</div>
+          <div class="txs">${txs.length} txs</div>
+          <div>${timeAgo(Math.max(sec, 0))}</div>
         </div>
       </div>`;
-    });
+    }
     document.getElementById('blocksList').innerHTML = html;
   } catch (e) {
+    console.error('Blocks error:', e);
     document.getElementById('blocksList').innerHTML = '<div class="loading">Error loading blocks</div>';
   }
 }
 
 async function fetchProposals() {
   try {
-    const resp = await fetch(`${PROXY}${API}/cosmos/gov/v1/proposals?pagination.limit=5`);
-    const data = await resp.json();
+    const data = await api('/cosmos/gov/v1/proposals?pagination.limit=5');
     const proposals = data.proposals || [];
 
     if (proposals.length === 0) {
@@ -268,30 +222,29 @@ async function fetchProposals() {
 
     let html = '';
     proposals.forEach(p => {
-      const id = p.proposal_id;
-      const title = p.content?.title || p.title || 'Proposal #' + id;
+      const id = p.id;
+      const title = p.title || p.summary || 'Proposal #' + id;
       const status = p.status;
-      const yes = parseInt(p.final_tally_result?.yes || 0);
-      const no = parseInt(p.final_tally_result?.no || 0);
-      const abstain = parseInt(p.final_tally_result?.abstain || 0);
-      const nw = parseInt(p.final_tally_result?.no_with_veto || 0);
+      const yes = parseInt(p.final_tally_result?.yes_count || 0);
+      const no = parseInt(p.final_tally_result?.no_count || 0);
+      const abstain = parseInt(p.final_tally_result?.abstain_count || 0);
+      const nw = parseInt(p.final_tally_result?.no_with_veto_count || 0);
       const total = yes + no + abstain + nw || 1;
 
-      let statusBadge = '';
-      if (status === 'PROPOSAL_STATUS_VOTING_PERIOD') statusBadge = '<span class="badge badge-blue">Voting</span>';
-      else if (status === 'PROPOSAL_STATUS_PASSED') statusBadge = '<span class="badge badge-green">Passed</span>';
-      else statusBadge = '<span class="badge" style="background:rgba(255,255,255,0.1);color:#888">' + status.split('_').pop() + '</span>';
+      let badge = '';
+      if (status === 'PROPOSAL_STATUS_VOTING_PERIOD') badge = '<span class="badge badge-blue">Voting</span>';
+      else if (status === 'PROPOSAL_STATUS_PASSED') badge = '<span class="badge badge-green">Passed</span>';
+      else badge = '<span class="badge" style="background:rgba(255,255,255,0.1);color:#888">' + status.split('_').pop() + '</span>';
 
       html += `<div class="proposal-card">
-        <div class="proposal-header">
-          <h4 style="font-size:14px">Proposal #${id}: ${title.slice(0, 50)}</h4>
-          ${statusBadge}
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <h4 style="font-size:14px">#${id}: ${title.slice(0,50)}</h4>
+          ${badge}
         </div>
         <div class="vote-bar">
           <div class="vote-yes" style="width:${(yes/total*100).toFixed(0)}%"></div>
           <div class="vote-no" style="width:${(no/total*100).toFixed(0)}%"></div>
           <div class="vote-abstain" style="width:${(abstain/total*100).toFixed(0)}%"></div>
-          <div class="vote-nowith" style="width:${(nw/total*100).toFixed(0)}%"></div>
         </div>
         <div class="vote-labels">
           <span>Yes ${(yes/total*100).toFixed(0)}%</span>
@@ -302,73 +255,58 @@ async function fetchProposals() {
     });
     document.getElementById('proposalsList').innerHTML = html;
   } catch (e) {
+    console.error('Proposals error:', e);
     document.getElementById('proposalsList').innerHTML = '<div class="loading">Error loading proposals</div>';
   }
 }
 
 async function fetchValidators() {
   try {
-    const resp = await fetch(`${PROXY}${API}/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100`);
-    const data = await resp.json();
-    const vals = (data.validators || []).sort((a, b) => parseInt(b.tokens) - parseInt(a.tokens));
-    const total = vals.reduce((s, v) => s + parseInt(v.tokens), 0);
-    const colors = ['#00d4ff', '#ff922b', '#00ff88', '#ffd700', '#7b61ff'];
+    const data = await api('/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100');
+    const vals = (data.validators || []).sort((a,b) => parseInt(b.tokens) - parseInt(a.tokens));
+    const total = vals.reduce((s,v) => s + parseInt(v.tokens), 0);
+    const colors = ['#00d4ff','#ff922b','#00ff88','#ffd700','#7b61ff'];
 
-    let html = `<table class="table">
-      <thead><tr><th>#</th><th>Validator</th><th>Stake</th><th>Commission</th></tr></thead><tbody>`;
-    vals.slice(0, 10).forEach((v, i) => {
+    let html = '<table class="table"><thead><tr><th>#</th><th>Validator</th><th>Stake</th><th>Commission</th><th>APR</th></tr></thead><tbody>';
+    vals.slice(0,10).forEach((v,i) => {
       const tokens = parseInt(v.tokens);
-      const pct = ((tokens / total) * 100).toFixed(1);
-      const comm = (parseFloat(v.commission.commission_rates.rate) * 100).toFixed(0);
+      const pct = ((tokens/total)*100).toFixed(1);
+      const comm = (parseFloat(v.commission.commission_rates.rate)*100).toFixed(0);
+      const apr = (40.9 * (1 - parseFloat(v.commission.commission_rates.rate))).toFixed(1);
       const color = colors[i % colors.length];
+
       html += `<tr>
-        <td>${i + 1}</td>
+        <td>${i+1}</td>
         <td>
           <div style="display:flex;align-items:center;gap:8px">
             <div style="width:28px;height:28px;border-radius:6px;background:${color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">${v.description.moniker.charAt(0)}</div>
             <span>${v.description.moniker}</span>
           </div>
         </td>
-        <td>${formatJAY(tokens)} JAY (${pct}%)</td>
+        <td>${fmtJAY(tokens)} JAY (${pct}%)</td>
         <td>${comm}%</td>
+        <td style="color:#00ff88">~${apr}%</td>
       </tr>`;
     });
     html += '</tbody></table>';
     document.getElementById('topValidators').innerHTML = html;
   } catch (e) {
+    console.error('Validators error:', e);
     document.getElementById('topValidators').innerHTML = '<div class="loading">Error loading validators</div>';
   }
 }
 
-// ─── Search ───────────────────────────────────
-async function doSearch() {
+function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
   if (!q) return;
-
-  // Try block height
-  if (/^\d+$/.test(q)) {
-    window.open(`https://jayscan.thejaynetwork.com/block/${q}`, '_blank');
-    return;
-  }
-
-  // Try address
-  if (q.startsWith('yjay1')) {
-    window.open(`https://jayscan.thejaynetwork.com/address/${q}`, '_blank');
-    return;
-  }
-
-  // Try tx hash
-  if (q.length === 64 || q.startsWith('0x')) {
-    window.open(`https://jayscan.thejaynetwork.com/tx/${q}`, '_blank');
-    return;
-  }
-
-  alert('Search not recognized. Try block height, address, or tx hash.');
+  if (/^\d+$/.test(q)) window.open('https://jayscan.thejaynetwork.com/block/' + q, '_blank');
+  else if (q.startsWith('yjay1')) window.open('https://jayscan.thejaynetwork.com/address/' + q, '_blank');
+  else if (q.length === 64) window.open('https://jayscan.thejaynetwork.com/tx/' + q, '_blank');
+  else alert('Search not recognized.');
 }
 
-// ─── Init ─────────────────────────────────────
 fetchAll();
-setInterval(fetchAll, 15000); // Refresh every 15s
+setInterval(fetchAll, 15000);
 </script>
 
 </body>
