@@ -142,8 +142,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 </div>
 
 <script>
+// API only
 const API = 'https://api.thejaynetwork.com';
-const RPC = 'https://rpc.thejaynetwork.com';
 const DENOM = 'ujay';
 const DEC = 6;
 
@@ -186,7 +186,7 @@ async function fetchAll() {
 async function fetchStats() {
   try {
     // Block height
-    const block = await (await fetch(`${RPC}/block`)).json();
+    const block = await (await fetch(`${API}/cosmos/base/tendermint/v1beta1/blocks/latest`)).json();
     const height = parseInt(block.block.header.height);
     document.getElementById('blockHeight').textContent = height.toLocaleString();
     document.getElementById('navHeight').textContent = '#' + height.toLocaleString();
@@ -209,14 +209,14 @@ async function fetchStats() {
 
 async function fetchBlocks() {
   try {
-    const latest = await (await fetch(`${RPC}/block`)).json();
+    const latest = await (await fetch(`${API}/cosmos/base/tendermint/v1beta1/blocks/latest`)).json();
     const height = parseInt(latest.block.header.height);
     const blocks = [];
 
     // Fetch last 5 blocks
     for (let i = 0; i < 5; i++) {
       const h = height - i;
-      const block = await (await fetch(`${RPC}/block?height=${h}`)).json();
+      const block = await (await fetch(`${API}/cosmos/base/tendermint/v1beta1/blocks/latest?height=${h}`)).json();
       const time = new Date(block.block.header.time);
       const proposer = block.block.header.proposer_address;
       const txs = block.block.data.txs || [];

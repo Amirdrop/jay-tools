@@ -147,8 +147,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 </div>
 
 <script>
+// API only
 const API = 'https://api.thejaynetwork.com';
-const RPC = 'https://rpc.thejaynetwork.com';
 const CHAIN_ID = 'thejaynetwork';
 const DENOM = 'ujay';
 const DECIMALS = 6;
@@ -170,7 +170,7 @@ function shortAddr(addr) {
 async function fetchNetworkStats() {
   try {
     // Block height
-    const blockResp = await fetch(`${RPC}/block`);
+    const blockResp = await fetch(`${API}/cosmos/base/tendermint/v1beta1/blocks/latest`);
     const blockData = await blockResp.json();
     const height = parseInt(blockData.block.header.height);
     document.getElementById('blockHeight').textContent = height.toLocaleString();
@@ -274,7 +274,7 @@ async function connectWallet() {
   const jayChain = {
     chainId: CHAIN_ID,
     chainName: 'The Jay Network',
-    rpc: 'https://rpc.thejaynetwork.com',
+    rpc: 'https://api.thejaynetwork.com',
     rest: RPC,
     bip44: { coinType: 118 },
     bech32Config: {
