@@ -215,8 +215,12 @@ function renderValidators() {
 
   let html = `<table class="table">
     <thead><tr>
-      <th>#</th><th>Validator</th><th>Voting Power</th><th>Commission</th><th>Status</th><th>Action</th>
+      <th>#</th><th>Validator</th><th>Voting Power</th><th>Commission</th><th>Est. APR</th><th>Status</th><th>Action</th>
     </tr></thead><tbody>`;
+
+  // Calculate base APR from annual provisions / bonded tokens
+  const annualProvisions = 151177780547378; // ujay
+  const baseApr = (annualProvisions / totalBonded * 100).toFixed(1);
 
   validators.forEach((v, i) => {
     const tokens = parseInt(v.tokens);
@@ -225,6 +229,7 @@ function renderValidators() {
     const moniker = v.description.moniker || 'Unknown';
     const color = colors[i % colors.length];
     const initial = moniker.charAt(0).toUpperCase();
+    const validatorApr = (baseApr * (1 - parseFloat(v.commission.commission_rates.rate))).toFixed(1);
 
     html += `<tr>
       <td>${i + 1}</td>
@@ -243,6 +248,7 @@ function renderValidators() {
         <div style="font-size:11px;color:#666;margin-top:2px">${pct}%</div>
       </td>
       <td>${commission}%</td>
+      <td style="color:#00ff88;font-weight:600">~${validatorApr}%</td>
       <td><span class="badge badge-green">Active</span></td>
       <td><button class="btn btn-outline btn-sm" onclick="openStakeModalFor('${v.operator_address}','${moniker}')">Delegate</button></td>
     </tr>`;
