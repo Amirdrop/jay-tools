@@ -1,3 +1,4 @@
+<!-- v3 cache bust -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -150,7 +151,7 @@ const DEC = 6;
 
 async function fetchWithFallback(path) {
   try {
-    const resp = await fetch(`${RPC}${path}`, { signal: AbortSignal.timeout(10000) });
+    const resp = await fetch(`${PROXY}${API}${path}`, { signal: AbortSignal.timeout(10000) });
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     return await resp.json();
   } catch (e) {
