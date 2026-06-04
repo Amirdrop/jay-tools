@@ -314,21 +314,49 @@ async function fetchTxs() {
     const height = parseInt(latest.block.header.height);
     const txs = [];
 
-    // Scan last 20 blocks for transactions
-    for (let i = 0; i < 20 && txs.length < 8; i++) {
+    // Scan last 30 blocks for transactions
+    for (let i = 0; i < 30 && txs.length < 10; i++) {
       const h = height - i;
       const block = await api('/cosmos/base/tendermint/v1beta1/blocks/' + h);
       const blockTxs = block.block.data.txs || [];
       const time = new Date(block.block.header.time);
 
-      blockTxs.forEach((tx, idx) => {
-        // Decode basic info from raw tx (base64)
-        txs.push({
-          height: h,
-          time: time,
-          hash: 'tx_' + h + '_' + idx,
-          raw: tx.slice(0, 40) + '...'
-        });
+      blockTxs.forEach((rawTx, idx) => {
+        try {
+          // Decode base64 tx
+          const decoded = atob(rawTx);
+          let txType = 'Transaction';
+          let from = '';
+          let to = '';
+          let amount = '';
+          let denom = '';
+
+          // Detect message type
+          if (decoded.includes('cosmos.bank.v1beta1.MsgSend')) {
+            txType = 'Send';
+            // Extract addresses (yjay1...)
+            const addrs = decoded.match(/yjay1[a-z0-9]{38}/g);
+            if (addrs && addrs.length >= 2) {
+              from = addrs[0];
+              to = addrs[1];
+            }
+            // Extract amount
+            const amtMatch = decoded.match(/ujay(\d+)/);
+            if (amtMatch) {
+              const raw = parseInt(amtMatch[1]);
+              amount = (raw / 1e6).toFixed(2);
+              denom = 'JAY';
+            }
+          } else if (decoded.includes('cosmos.staking')) {
+            txType = 'Stake';
+          } else if (decoded.includes('cosmos.gov')) {
+            txType = 'Vote';
+          } else if (decoded.includes('cosmos.distribution')) {
+            txType = 'Claim';
+          }
+
+          txs.push({ height: h, time, txType, from, to, amount, denom, idx });
+        } catch (e) {}
       });
     }
 
@@ -338,17 +366,36 @@ async function fetchTxs() {
     }
 
     const now = Date.now();
+    const icons = { 'Send': '📤', 'Stake': '🥩', 'Vote': '🗳️', 'Claim': '🎁', 'Transaction': '📝' };
+    const colors = { 'Send': 'rgba(0,212,255,0.15)', 'Stake': 'rgba(0,255,136,0.15)', 'Vote': 'rgba(123,97,255,0.15)', 'Claim': 'rgba(255,215,0,0.15)', 'Transaction': 'rgba(255,255,255,0.05)' };
+
     let html = '';
     txs.slice(0, 8).forEach(tx => {
       const sec = Math.floor((now - tx.time.getTime()) / 1000);
+      const icon = icons[tx.txType] || '📝';
+      const bg = colors[tx.txType] || 'rgba(255,255,255,0.05)';
+      const shortFrom = tx.from ? tx.from.slice(0,10) + '...' + tx.from.slice(-6) : '';
+      const shortTo = tx.to ? tx.to.slice(0,10) + '...' + tx.to.slice(-6) : '';
+
+      let detail = '';
+      if (tx.txType === 'Send' && tx.from && tx.to) {
+        detail = `<div style="font-size:11px;color:#666">${shortFrom} → ${shortTo}</div>`;
+      }
+
+      let amountStr = '';
+      if (tx.amount) {
+        amountStr = `<div style="font-size:14px;font-weight:600;color:#00d4ff">${tx.amount} ${tx.denom}</div>`;
+      }
+
       html += `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.03)">
-        <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,212,255,0.15);display:flex;align-items:center;justify-content:center;font-size:14px">📤</div>
+        <div style="width:36px;height:36px;border-radius:10px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:14px">${icon}</div>
         <div style="flex:1">
-          <div style="font-size:14px;font-weight:600">Transaction</div>
-          <div style="font-size:11px;color:#666">Block #${tx.height.toLocaleString()}</div>
+          <div style="font-size:14px;font-weight:600">${tx.txType}</div>
+          ${detail}
+          <div style="font-size:11px;color:#555">Block #${tx.height.toLocaleString()}</div>
         </div>
         <div style="text-align:right">
-          <div style="font-size:12px;color:#00d4ff">Tx</div>
+          ${amountStr}
           <div style="font-size:11px;color:#666">${timeAgo(Math.max(sec, 0))}</div>
         </div>
       </div>`;
