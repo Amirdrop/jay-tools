@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><title>JAY Explorer Tools</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>JAY Explorer Tools</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;min-height:100vh}
@@ -24,7 +25,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 .table{width:100%;border-collapse:collapse}
 .table th{text-align:left;font-size:11px;color:#666;text-transform:uppercase;letter-spacing:1px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
 .table td{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:14px}
-.table tr:hover{background:rgba(255,255,255,0.02)}
+.table tr{cursor:pointer;transition:0.2s}
+.table tr:hover{background:rgba(0,212,255,0.05)}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
 .badge-green{background:rgba(0,255,136,0.15);color:#00ff88}
 .badge-blue{background:rgba(0,212,255,0.15);color:#00d4ff}
@@ -33,22 +35,28 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 .search-input:focus{border-color:#00d4ff}
 .btn{border:none;padding:10px 20px;border-radius:10px;font-weight:600;cursor:pointer;font-size:13px}
 .btn-primary{background:linear-gradient(135deg,#00d4ff,#7b61ff);color:#fff}
-.block-card{display:flex;align-items:center;gap:16px;padding:16px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid rgba(255,255,255,0.05);margin-bottom:8px}
-.block-num{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#7b61ff);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800}
-.block-info{flex:1}
-.block-info h4{font-size:15px;font-weight:600}
-.block-info p{font-size:12px;color:#666;margin-top:2px}
-.block-meta{text-align:right;font-size:12px;color:#888}
-.block-meta .txs{color:#00d4ff;font-weight:600}
+.btn-outline{background:transparent;border:1px solid rgba(255,255,255,0.15);color:#fff;cursor:pointer}
+.btn-outline:hover{border-color:#00d4ff}
 .loading{color:#666;font-size:13px;text-align:center;padding:40px}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.1);border-top-color:#00d4ff;border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
-.proposal-card{padding:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;margin-bottom:8px}
-.vote-bar{height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;display:flex;margin-top:8px}
-.vote-yes{background:#00ff88}
-.vote-no{background:#ff4444}
-.vote-abstain{background:#888}
-.vote-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:#666}
+.val-bar{height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;margin-top:4px}
+.val-bar-fill{height:100%;border-radius:3px}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:200;justify-content:center;align-items:center}
+.modal-overlay.show{display:flex}
+.modal{background:#12122a;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:500px;max-width:90%;max-height:80vh;overflow-y:auto}
+.modal h3{font-size:20px;margin-bottom:20px;color:#00d4ff}
+.modal-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.modal-row .label{color:#888;font-size:13px}
+.modal-row .value{font-weight:600;font-size:14px;text-align:right;word-break:break-all;max-width:60%}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:#888;font-size:24px;cursor:pointer}
+
+/* Clickable */
+.clickable{cursor:pointer;transition:0.2s}
+.clickable:hover{color:#00d4ff}
+
 @media(max-width:768px){.grid-4{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}}
 </style>
 </head>
@@ -57,32 +65,32 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
 <nav class="nav">
   <div class="nav-logo">JAY Explorer</div>
   <div style="display:flex;gap:16px;align-items:center">
-    <span style="font-size:12px;color:#666">Block <span id="navHeight">...</span></span>
+    <span style="font-size:12px;color:#666">Block <span id="navHeight" class="clickable" onclick="showLatestBlock()">...</span></span>
     <span style="font-size:12px;color:#00ff88">● Live</span>
   </div>
 </nav>
 
 <div class="container">
   <div class="search-box">
-    <input class="search-input" id="searchInput" placeholder="Search by address, tx hash, block height..." onkeydown="if(event.key==='Enter')doSearch()">
+    <input class="search-input" id="searchInput" placeholder="Search by block height, address..." onkeydown="if(event.key==='Enter')doSearch()">
     <button class="btn btn-primary" onclick="doSearch()">Search</button>
   </div>
 
   <div class="grid-4">
-    <div class="card card-blue">
+    <div class="card card-blue clickable" onclick="showLatestBlock()">
       <div class="card-label">Block Height</div>
       <div class="card-value" id="blockHeight"><span class="spinner"></span></div>
-      <div class="card-sub">~5s block time</div>
+      <div class="card-sub">~5s block time • Click for details</div>
     </div>
     <div class="card card-green">
       <div class="card-label">Total Supply</div>
       <div class="card-value" id="totalSupply"><span class="spinner"></span></div>
       <div class="card-sub">JAY tokens</div>
     </div>
-    <div class="card card-purple">
+    <div class="card card-purple clickable" onclick="showTab('validators')">
       <div class="card-label">Validators</div>
       <div class="card-value" id="validatorCount"><span class="spinner"></span></div>
-      <div class="card-sub">Active set</div>
+      <div class="card-sub">Active set • Click to view</div>
     </div>
     <div class="card card-orange">
       <div class="card-label">Community Pool</div>
@@ -98,28 +106,39 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;m
     </div>
     <div class="card">
       <div class="section-title">📝 Latest Transactions</div>
-      <div id="txsList"><div class="loading"><span class="spinner"></span> Scanning blocks for transactions...</div></div>
+      <div id="txsList"><div class="loading"><span class="spinner"></span> Scanning blocks...</div></div>
     </div>
   </div>
 
   <div class="grid-2">
     <div class="card">
-      <div class="section-title">🗳️ Governance Proposals</div>
-      <div id="proposalsList"><div class="loading"><span class="spinner"></span> Loading proposals...</div></div>
+      <div class="section-title">🗳️ Governance</div>
+      <div id="proposalsList"><div class="loading"><span class="spinner"></span> Loading...</div></div>
     </div>
     <div class="card">
       <div class="section-title">🏆 Top Validators</div>
-      <div id="topValidators"><div class="loading"><span class="spinner"></span> Loading validators...</div></div>
+      <div id="topValidators"><div class="loading"><span class="spinner"></span> Loading...</div></div>
     </div>
   </div>
 </div>
 
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <h3 id="modalTitle">Details</h3>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
 <script>
-// CORS proxy - JAY Network API sends duplicate CORS headers
 const PROXY = 'https://corsproxy.io/?';
 const API = 'https://api.thejaynetwork.com';
 const DENOM = 'ujay';
 const DEC = 6;
+
+let latestHeight = 0;
+let validatorsCache = [];
 
 function fmtJAY(u) {
   const n = parseFloat(u) / Math.pow(10, DEC);
@@ -127,8 +146,8 @@ function fmtJAY(u) {
   if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
   return n.toFixed(2);
 }
-
 function shortAddr(a) { return a ? a.slice(0,10) + '...' + a.slice(-6) : '—'; }
+function shortHash(h) { return h ? h.slice(0,12) + '...' + h.slice(-8) : '—'; }
 function timeAgo(sec) {
   if (sec < 60) return sec + 's ago';
   if (sec < 3600) return Math.floor(sec/60) + 'm ago';
@@ -141,35 +160,166 @@ async function api(path) {
   return resp.json();
 }
 
-async function fetchAll() {
-  await Promise.allSettled([fetchStats(), fetchBlocks(), fetchProposals(), fetchValidators()]);
+// ─── Modal ──────────────────────────────────
+function showModal(title, rows) {
+  document.getElementById('modalTitle').textContent = title;
+  let html = '';
+  rows.forEach(r => {
+    html += `<div class="modal-row"><span class="label">${r.label}</span><span class="value">${r.value}</span></div>`;
+  });
+  document.getElementById('modalContent').innerHTML = html;
+  document.getElementById('detailModal').classList.add('show');
+}
+function closeModal() { document.getElementById('detailModal').classList.remove('show'); }
+document.getElementById('detailModal').addEventListener('click', e => { if(e.target === e.currentTarget) closeModal(); });
+
+// ─── Block Detail ───────────────────────────
+async function showBlockDetail(height) {
+  try {
+    const block = await api('/cosmos/base/tendermint/v1beta1/blocks/' + height);
+    const header = block.block.header;
+    const txs = block.block.data.txs || [];
+    const time = new Date(header.time);
+
+    const rows = [
+      { label: 'Height', value: parseInt(header.height).toLocaleString() },
+      { label: 'Time', value: time.toLocaleString() },
+      { label: 'Proposer', value: shortAddr(header.proposer_address) },
+      { label: 'Chain ID', value: header.chain_id },
+      { label: 'Transactions', value: txs.length },
+      { label: 'Block Hash', value: shortHash(block.block_id?.hash) },
+    ];
+
+    if (txs.length > 0) {
+      rows.push({ label: '--- Transactions ---', value: '' });
+      txs.forEach((rawTx, i) => {
+        try {
+          const decoded = atob(rawTx);
+          let txType = 'Transaction';
+          if (decoded.includes('MsgSend')) txType = 'Send';
+          else if (decoded.includes('MsgDelegate')) txType = 'Delegate';
+          else if (decoded.includes('MsgVote')) txType = 'Vote';
+          else if (decoded.includes('MsgWithdrawDelegatorReward')) txType = 'Claim Rewards';
+
+          const amounts = decoded.match(/ujay(\d+)/g);
+          let amountStr = '';
+          if (amounts) {
+            amountStr = amounts.map(a => (parseInt(a.replace('ujay',''))/1e6).toFixed(2) + ' JAY').join(', ');
+          }
+
+          const addrs = decoded.match(/yjay1[a-z0-9]{38}/g);
+          let addrStr = '';
+          if (addrs && addrs.length >= 2) {
+            addrStr = shortAddr(addrs[0]) + ' → ' + shortAddr(addrs[1]);
+          } else if (addrs && addrs.length === 1) {
+            addrStr = shortAddr(addrs[0]);
+          }
+
+          rows.push({ label: `Tx #${i+1} (${txType})`, value: amountStr || addrStr || 'View raw' });
+        } catch(e) {
+          rows.push({ label: `Tx #${i+1}`, value: 'Encoded' });
+        }
+      });
+    }
+
+    showModal('Block #' + parseInt(header.height).toLocaleString(), rows);
+  } catch(e) {
+    showModal('Error', [{label: 'Message', value: e.message}]);
+  }
 }
 
+async function showLatestBlock() {
+  if (latestHeight > 0) showBlockDetail(latestHeight);
+}
+
+// ─── Validator Detail ───────────────────────
+function showValidatorDetail(v) {
+  const tokens = parseInt(v.tokens);
+  const totalStake = validatorsCache.reduce((s,vv) => s + parseInt(vv.tokens), 0);
+  const pct = ((tokens/totalStake)*100).toFixed(2);
+  const comm = (parseFloat(v.commission.commission_rates.rate)*100).toFixed(1);
+  const apr = (40.9 * (1 - parseFloat(v.commission.commission_rates.rate))).toFixed(1);
+
+  const rows = [
+    { label: 'Moniker', value: v.description.moniker },
+    { label: 'Operator Address', value: v.operator_address },
+    { label: 'Status', value: v.status === 'BOND_STATUS_BONDED' ? '✅ Active' : v.status },
+    { label: 'Jailed', value: v.jailed ? '⚠️ Yes' : 'No' },
+    { label: 'Total Delegated', value: fmtJAY(tokens) + ' JAY' },
+    { label: 'Share of Stake', value: pct + '%' },
+    { label: 'Commission', value: comm + '%' },
+    { label: 'Max Commission', value: (parseFloat(v.commission.commission_rates.max_rate)*100).toFixed(0) + '%' },
+    { label: 'Est. APR', value: '~' + apr + '%' },
+    { label: 'Min Self Delegation', value: fmtJAY(v.min_self_delegation) + ' JAY' },
+  ];
+  if (v.description.website) rows.push({ label: 'Website', value: v.description.website });
+  if (v.description.details) rows.push({ label: 'Details', value: v.description.details });
+
+  showModal('Validator: ' + v.description.moniker, rows);
+}
+
+// ─── Proposal Detail ────────────────────────
+function showProposalDetail(p) {
+  const yes = parseInt(p.final_tally_result?.yes_count || 0);
+  const no = parseInt(p.final_tally_result?.no_count || 0);
+  const abstain = parseInt(p.final_tally_result?.abstain_count || 0);
+  const nw = parseInt(p.final_tally_result?.no_with_veto_count || 0);
+  const total = yes + no + abstain + nw || 1;
+
+  const rows = [
+    { label: 'ID', value: '#' + p.id },
+    { label: 'Title', value: p.title || 'N/A' },
+    { label: 'Status', value: p.status.split('_').pop() },
+    { label: 'Submit Time', value: new Date(p.submit_time).toLocaleString() },
+    { label: 'Voting End', value: new Date(p.voting_end_time).toLocaleString() },
+    { label: 'Yes', value: (yes/total*100).toFixed(1) + '%' },
+    { label: 'No', value: (no/total*100).toFixed(1) + '%' },
+    { label: 'Abstain', value: (abstain/total*100).toFixed(1) + '%' },
+    { label: 'No With Veto', value: (nw/total*100).toFixed(1) + '%' },
+  ];
+  if (p.summary) rows.push({ label: 'Summary', value: p.summary.slice(0, 200) });
+
+  showModal('Proposal #' + p.id, rows);
+}
+
+// ─── Tx Detail ──────────────────────────────
+function showTxDetail(tx) {
+  const rows = [
+    { label: 'Type', value: tx.txType },
+    { label: 'Block', value: '#' + tx.height.toLocaleString() },
+    { label: 'Time', value: tx.time.toLocaleString() },
+  ];
+  if (tx.from) rows.push({ label: 'From', value: tx.from });
+  if (tx.to) rows.push({ label: 'To', value: tx.to });
+  if (tx.amount) rows.push({ label: 'Amount', value: tx.amount + ' ' + tx.denom });
+  showModal('Transaction Details', rows);
+}
+
+// ─── Tab switch (for validators card click) ─
+function showTab(tab) {
+  const el = document.getElementById('topValidators');
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ─── Fetch Data ─────────────────────────────
 async function fetchStats() {
   try {
-    // Block
     const block = await api('/cosmos/base/tendermint/v1beta1/blocks/latest');
-    const height = parseInt(block.block.header.height);
-    document.getElementById('blockHeight').innerHTML = `${height.toLocaleString()}`;
-    document.getElementById('navHeight').innerHTML = `#${height.toLocaleString()}`;
+    latestHeight = parseInt(block.block.header.height);
+    document.getElementById('blockHeight').textContent = latestHeight.toLocaleString();
+    document.getElementById('navHeight').textContent = '#' + latestHeight.toLocaleString();
 
-    // Supply
     const supply = await api('/cosmos/bank/v1beta1/supply');
     const jay = supply.supply.find(s => s.denom === DENOM);
     if (jay) document.getElementById('totalSupply').textContent = fmtJAY(jay.amount);
 
-    // Validators
     const vals = await api('/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED');
     document.getElementById('validatorCount').textContent = (vals.validators || []).length;
 
-    // Community pool
     const pool = await api('/cosmos/distribution/v1beta1/community_pool');
     const poolJAY = pool.pool.find(p => p.denom === DENOM);
     if (poolJAY) document.getElementById('communityPool').textContent = fmtJAY(poolJAY.amount);
-  } catch (e) {
-    console.error('Stats error:', e);
-    document.getElementById('blockHeight').textContent = 'Error';
-  }
+  } catch (e) { console.error('Stats:', e); }
 }
 
 async function fetchBlocks() {
@@ -181,136 +331,27 @@ async function fetchBlocks() {
 
     for (let i = 0; i < 5; i++) {
       const h = height - i;
-      let block;
-      if (i === 0) {
-        block = latest;
-      } else {
-        block = await api('/cosmos/base/tendermint/v1beta1/blocks/' + h);
-      }
-      const time = new Date(block.block.header.time);
+      const block = i === 0 ? latest : await api('/cosmos/base/tendermint/v1beta1/blocks/' + h);
       const txs = block.block.data.txs || [];
-      const sec = Math.floor((now - time.getTime()) / 1000);
+      const sec = Math.floor((now - new Date(block.block.header.time).getTime()) / 1000);
 
-      html += `
-      <div class="block-card" >
-        <div class="block-num">${h.toLocaleString()}</div>
-        <div class="block-info">
-          <h4>Block #${h.toLocaleString()}</h4>
-          <p>${txs.length} transaction${txs.length !== 1 ? 's' : ''}</p>
+      html += `<div class="clickable" style="display:flex;align-items:center;gap:16px;padding:14px;background:rgba(255,255,255,0.02);border-radius:12px;border:1px solid rgba(255,255,255,0.05);margin-bottom:8px;transition:0.2s" onclick="showBlockDetail(${h})" onmouseover="this.style.borderColor='rgba(0,212,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
+        <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#00d4ff,#7b61ff);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800">${h % 1000}</div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:600;color:#00d4ff">Block #${h.toLocaleString()}</div>
+          <div style="font-size:12px;color:#666">${txs.length} transaction${txs.length !== 1 ? 's' : ''}</div>
         </div>
-        <div class="block-meta">
-          <div class="txs">${txs.length} txs</div>
-          <div>${timeAgo(Math.max(sec, 0))}</div>
+        <div style="text-align:right">
+          <div style="font-size:13px;color:#00d4ff;font-weight:600">${txs.length} txs</div>
+          <div style="font-size:11px;color:#666">${timeAgo(Math.max(sec, 0))}</div>
         </div>
-      </div>
-      `;
+      </div>`;
     }
     document.getElementById('blocksList').innerHTML = html;
   } catch (e) {
-    console.error('Blocks error:', e);
     document.getElementById('blocksList').innerHTML = '<div class="loading">Error loading blocks</div>';
   }
 }
-
-async function fetchProposals() {
-  try {
-    const data = await api('/cosmos/gov/v1/proposals?pagination.limit=5');
-    const proposals = data.proposals || [];
-
-    if (proposals.length === 0) {
-      document.getElementById('proposalsList').innerHTML = '<div class="loading">No proposals yet</div>';
-      return;
-    }
-
-    let html = '';
-    proposals.forEach(p => {
-      const id = p.id;
-      const title = p.title || p.summary || 'Proposal #' + id;
-      const status = p.status;
-      const yes = parseInt(p.final_tally_result?.yes_count || 0);
-      const no = parseInt(p.final_tally_result?.no_count || 0);
-      const abstain = parseInt(p.final_tally_result?.abstain_count || 0);
-      const nw = parseInt(p.final_tally_result?.no_with_veto_count || 0);
-      const total = yes + no + abstain + nw || 1;
-
-      let badge = '';
-      if (status === 'PROPOSAL_STATUS_VOTING_PERIOD') badge = '<span class="badge badge-blue">Voting</span>';
-      else if (status === 'PROPOSAL_STATUS_PASSED') badge = '<span class="badge badge-green">Passed</span>';
-      else badge = '<span class="badge" style="background:rgba(255,255,255,0.1);color:#888">' + status.split('_').pop() + '</span>';
-
-      html += `
-      <div class="proposal-card" >
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <h4 style="font-size:14px;color:#00d4ff">#${id}: ${title.slice(0,50)}</h4>
-          ${badge}
-        </div>
-        <div class="vote-bar">
-          <div class="vote-yes" style="width:${(yes/total*100).toFixed(0)}%"></div>
-          <div class="vote-no" style="width:${(no/total*100).toFixed(0)}%"></div>
-          <div class="vote-abstain" style="width:${(abstain/total*100).toFixed(0)}%"></div>
-        </div>
-        <div class="vote-labels">
-          <span>Yes ${(yes/total*100).toFixed(0)}%</span>
-          <span>No ${(no/total*100).toFixed(0)}%</span>
-          <span>Abstain ${(abstain/total*100).toFixed(0)}%</span>
-        </div>
-      </div>
-      `;
-    });
-    document.getElementById('proposalsList').innerHTML = html;
-  } catch (e) {
-    console.error('Proposals error:', e);
-    document.getElementById('proposalsList').innerHTML = '<div class="loading">Error loading proposals</div>';
-  }
-}
-
-async function fetchValidators() {
-  try {
-    const data = await api('/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100');
-    const vals = (data.validators || []).sort((a,b) => parseInt(b.tokens) - parseInt(a.tokens));
-    const total = vals.reduce((s,v) => s + parseInt(v.tokens), 0);
-    const colors = ['#00d4ff','#ff922b','#00ff88','#ffd700','#7b61ff'];
-
-    let html = '<table class="table"><thead><tr><th>#</th><th>Validator</th><th>Stake</th><th>Commission</th><th>APR</th></tr></thead><tbody>';
-    vals.slice(0,10).forEach((v,i) => {
-      const tokens = parseInt(v.tokens);
-      const pct = ((tokens/total)*100).toFixed(1);
-      const comm = (parseFloat(v.commission.commission_rates.rate)*100).toFixed(0);
-      const apr = (40.9 * (1 - parseFloat(v.commission.commission_rates.rate))).toFixed(1);
-      const color = colors[i % colors.length];
-
-      html += `<tr  >
-        <td>${i+1}</td>
-        <td>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div style="width:28px;height:28px;border-radius:6px;background:${color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">${v.description.moniker.charAt(0)}</div>
-            <span style="color:#00d4ff;text-decoration:underline">${v.description.moniker}</span>
-          </div>
-        </td>
-        <td>${fmtJAY(tokens)} JAY (${pct}%)</td>
-        <td>${comm}%</td>
-        <td style="color:#00ff88">~${apr}%</td>
-      </tr>`;
-    });
-    html += '</tbody></table>';
-    document.getElementById('topValidators').innerHTML = html;
-  } catch (e) {
-    console.error('Validators error:', e);
-    document.getElementById('topValidators').innerHTML = '<div class="loading">Error loading validators</div>';
-  }
-}
-
-function doSearch() {
-  const q = document.getElementById('searchInput').value.trim();
-  if (!q) return;
-  if (/^\d+$/.test(q)) window.open('https://jayscan.thejaynetwork.com/block/' + q, '_blank');
-  else if (q.startsWith('yjay1')) window.open('https://jayscan.thejaynetwork.com/address/' + q, '_blank');
-  else if (q.length === 64) window.open('https://jayscan.thejaynetwork.com/tx/' + q, '_blank');
-  else alert('Search not recognized.');
-}
-
-fetchAll();
-setInterval(fetchAll, 15000);
 
 async function fetchTxs() {
   try {
@@ -318,7 +359,6 @@ async function fetchTxs() {
     const height = parseInt(latest.block.header.height);
     const txs = [];
 
-    // Scan last 30 blocks for transactions
     for (let i = 0; i < 30 && txs.length < 10; i++) {
       const h = height - i;
       const block = await api('/cosmos/base/tendermint/v1beta1/blocks/' + h);
@@ -327,37 +367,20 @@ async function fetchTxs() {
 
       blockTxs.forEach((rawTx, idx) => {
         try {
-          // Decode base64 tx
           const decoded = atob(rawTx);
           let txType = 'Transaction';
-          let from = '';
-          let to = '';
-          let amount = '';
-          let denom = '';
+          let from = '', to = '', amount = '', denom = '';
 
-          // Detect message type
           if (decoded.includes('cosmos.bank.v1beta1.MsgSend')) {
             txType = 'Send';
-            // Extract addresses (yjay1...)
             const addrs = decoded.match(/yjay1[a-z0-9]{38}/g);
-            if (addrs && addrs.length >= 2) {
-              from = addrs[0];
-              to = addrs[1];
-            }
-            // Extract amount
+            if (addrs && addrs.length >= 2) { from = addrs[0]; to = addrs[1]; }
             const amtMatch = decoded.match(/ujay(\d+)/);
-            if (amtMatch) {
-              const raw = parseInt(amtMatch[1]);
-              amount = (raw / 1e6).toFixed(2);
-              denom = 'JAY';
-            }
-          } else if (decoded.includes('cosmos.staking')) {
-            txType = 'Stake';
-          } else if (decoded.includes('cosmos.gov')) {
-            txType = 'Vote';
-          } else if (decoded.includes('cosmos.distribution')) {
-            txType = 'Claim';
-          }
+            if (amtMatch) { amount = (parseInt(amtMatch[1])/1e6).toFixed(2); denom = 'JAY'; }
+          } else if (decoded.includes('MsgDelegate')) txType = 'Delegate';
+          else if (decoded.includes('MsgVote')) txType = 'Vote';
+          else if (decoded.includes('MsgWithdrawDelegatorReward')) txType = 'Claim';
+          else if (decoded.includes('MsgUndelegate')) txType = 'Undelegate';
 
           txs.push({ height: h, time, txType, from, to, amount, denom, idx });
         } catch (e) {}
@@ -365,34 +388,27 @@ async function fetchTxs() {
     }
 
     if (txs.length === 0) {
-      document.getElementById('txsList').innerHTML = '<div class="loading" style="color:#888">No recent transactions found</div>';
+      document.getElementById('txsList').innerHTML = '<div style="color:#666;text-align:center;padding:20px">No recent transactions</div>';
       return;
     }
 
     const now = Date.now();
-    const icons = { 'Send': '📤', 'Stake': '🥩', 'Vote': '🗳️', 'Claim': '🎁', 'Transaction': '📝' };
-    const colors = { 'Send': 'rgba(0,212,255,0.15)', 'Stake': 'rgba(0,255,136,0.15)', 'Vote': 'rgba(123,97,255,0.15)', 'Claim': 'rgba(255,215,0,0.15)', 'Transaction': 'rgba(255,255,255,0.05)' };
+    const icons = { Send: '📤', Delegate: '🥩', Vote: '🗳️', Claim: '🎁', Undelegate: '📤', Transaction: '📝' };
+    const colors = { Send: 'rgba(0,212,255,0.15)', Delegate: 'rgba(0,255,136,0.15)', Vote: 'rgba(123,97,255,0.15)', Claim: 'rgba(255,215,0,0.15)', Undelegate: 'rgba(255,146,43,0.15)', Transaction: 'rgba(255,255,255,0.05)' };
 
     let html = '';
     txs.slice(0, 8).forEach(tx => {
       const sec = Math.floor((now - tx.time.getTime()) / 1000);
       const icon = icons[tx.txType] || '📝';
       const bg = colors[tx.txType] || 'rgba(255,255,255,0.05)';
-      const shortFrom = tx.from ? tx.from.slice(0,10) + '...' + tx.from.slice(-6) : '';
-      const shortTo = tx.to ? tx.to.slice(0,10) + '...' + tx.to.slice(-6) : '';
 
       let detail = '';
-      if (tx.txType === 'Send' && tx.from && tx.to) {
-        detail = `<div style="font-size:11px;color:#666">${shortFrom} → ${shortTo}</div>`;
-      }
+      if (tx.from && tx.to) detail = `<div style="font-size:11px;color:#666">${shortAddr(tx.from)} → ${shortAddr(tx.to)}</div>`;
 
       let amountStr = '';
-      if (tx.amount) {
-        amountStr = `<div style="font-size:14px;font-weight:600;color:#00d4ff">${tx.amount} ${tx.denom}</div>`;
-      }
+      if (tx.amount) amountStr = `<div style="font-size:14px;font-weight:600;color:#00d4ff">${tx.amount} ${tx.denom}</div>`;
 
-      html += `
-      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.03);cursor:pointer">
+      html += `<div class="clickable" style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;margin-bottom:4px;transition:0.2s" onclick='showTxDetail(${JSON.stringify(tx).replace(/'/g,"\\'")})' onmouseover="this.style.background='rgba(0,212,255,0.05)'" onmouseout="this.style.background='transparent'">
         <div style="width:36px;height:36px;border-radius:10px;background:${bg};display:flex;align-items:center;justify-content:center;font-size:14px">${icon}</div>
         <div style="flex:1">
           <div style="font-size:14px;font-weight:600">${tx.txType}</div>
@@ -403,18 +419,107 @@ async function fetchTxs() {
           ${amountStr}
           <div style="font-size:11px;color:#666">${timeAgo(Math.max(sec, 0))}</div>
         </div>
-      </div>
-      `;
+      </div>`;
     });
     document.getElementById('txsList').innerHTML = html;
   } catch (e) {
-    console.error('Txs error:', e);
     document.getElementById('txsList').innerHTML = '<div class="loading">Error loading transactions</div>';
   }
 }
 
-fetchTxs();
-setInterval(fetchTxs, 15000);
+async function fetchProposals() {
+  try {
+    const data = await api('/cosmos/gov/v1/proposals?pagination.limit=5');
+    const proposals = data.proposals || [];
+    if (proposals.length === 0) { document.getElementById('proposalsList').innerHTML = '<div class="loading">No proposals</div>'; return; }
+
+    let html = '';
+    proposals.forEach(p => {
+      const yes = parseInt(p.final_tally_result?.yes_count || 0);
+      const no = parseInt(p.final_tally_result?.no_count || 0);
+      const abstain = parseInt(p.final_tally_result?.abstain_count || 0);
+      const nw = parseInt(p.final_tally_result?.no_with_veto_count || 0);
+      const total = yes + no + abstain + nw || 1;
+      const title = p.title || p.summary || 'Proposal #' + p.id;
+
+      let badge = '';
+      if (p.status === 'PROPOSAL_STATUS_VOTING_PERIOD') badge = '<span class="badge badge-blue">Voting</span>';
+      else if (p.status === 'PROPOSAL_STATUS_PASSED') badge = '<span class="badge badge-green">Passed</span>';
+      else badge = '<span class="badge" style="background:rgba(255,255,255,0.1);color:#888">' + p.status.split('_').pop() + '</span>';
+
+      html += `<div class="clickable" style="padding:14px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:12px;margin-bottom:8px;transition:0.2s" onclick='showProposalDetail(${JSON.stringify(p).replace(/'/g,"\\'")})' onmouseover="this.style.borderColor='rgba(0,212,255,0.3)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <h4 style="font-size:14px;color:#00d4ff">#${p.id}: ${title.slice(0,45)}</h4>
+          ${badge}
+        </div>
+        <div style="height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;display:flex">
+          <div style="background:#00ff88;width:${(yes/total*100).toFixed(0)}%"></div>
+          <div style="background:#ff4444;width:${(no/total*100).toFixed(0)}%"></div>
+          <div style="background:#888;width:${(abstain/total*100).toFixed(0)}%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:11px;color:#666">
+          <span>Yes ${(yes/total*100).toFixed(0)}%</span>
+          <span>No ${(no/total*100).toFixed(0)}%</span>
+          <span>Abstain ${(abstain/total*100).toFixed(0)}%</span>
+        </div>
+      </div>`;
+    });
+    document.getElementById('proposalsList').innerHTML = html;
+  } catch (e) {
+    document.getElementById('proposalsList').innerHTML = '<div class="loading">Error loading proposals</div>';
+  }
+}
+
+async function fetchValidators() {
+  try {
+    const data = await api('/cosmos/staking/v1beta1/validators?status=BOND_STATUS_BONDED&pagination.limit=100');
+    validatorsCache = (data.validators || []).sort((a,b) => parseInt(b.tokens) - parseInt(a.tokens));
+    const total = validatorsCache.reduce((s,v) => s + parseInt(v.tokens), 0);
+    const colors = ['#00d4ff','#ff922b','#00ff88','#ffd700','#7b61ff','#ff6b6b','#00ccff','#ff66aa'];
+
+    let html = '<table class="table"><thead><tr><th>#</th><th>Validator</th><th>Stake</th><th>Comm.</th><th>APR</th></tr></thead><tbody>';
+    validatorsCache.slice(0,10).forEach((v,i) => {
+      const tokens = parseInt(v.tokens);
+      const pct = ((tokens/total)*100).toFixed(1);
+      const comm = (parseFloat(v.commission.commission_rates.rate)*100).toFixed(0);
+      const apr = (40.9 * (1 - parseFloat(v.commission.commission_rates.rate))).toFixed(1);
+      const color = colors[i % colors.length];
+
+      html += `<tr onclick='showValidatorDetail(${JSON.stringify(v).replace(/'/g,"\\'")})'>
+        <td>${i+1}</td>
+        <td><div style="display:flex;align-items:center;gap:8px"><div style="width:28px;height:28px;border-radius:6px;background:${color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800">${v.description.moniker.charAt(0)}</div><span style="color:#00d4ff">${v.description.moniker}</span></div></td>
+        <td>${fmtJAY(tokens)} JAY (${pct}%)</td>
+        <td>${comm}%</td>
+        <td style="color:#00ff88">~${apr}%</td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    document.getElementById('topValidators').innerHTML = html;
+  } catch (e) {
+    document.getElementById('topValidators').innerHTML = '<div class="loading">Error loading validators</div>';
+  }
+}
+
+// ─── Search ─────────────────────────────────
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim().replace(/,/g, '');
+  if (!q) return;
+  if (/^\d+$/.test(q)) showBlockDetail(parseInt(q));
+  else if (q.startsWith('yjay1')) {
+    const v = validatorsCache.find(vv => vv.operator_address === q);
+    if (v) showValidatorDetail(v);
+    else showModal('Address', [{label: 'Address', value: q}, {label: 'Info', value: 'Connect wallet to view balance'}]);
+  }
+  else alert('Enter block height or validator address');
+}
+
+// ─── Init ───────────────────────────────────
+fetchAll();
+setInterval(fetchAll, 15000);
+
+async function fetchAll() {
+  await Promise.allSettled([fetchStats(), fetchBlocks(), fetchTxs(), fetchProposals(), fetchValidators()]);
+}
 </script>
 
 </body>
